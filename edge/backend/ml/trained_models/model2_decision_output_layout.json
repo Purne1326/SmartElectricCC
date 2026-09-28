@@ -1,0 +1,27 @@
+{
+  "output_keys": [
+    "classification",
+    "attribution",
+    "optimization"
+  ],
+  "output_sizes": [
+    3,
+    6,
+    3
+  ],
+  "total_output_dim": 12,
+  "unpack_info": {
+    "classification": {
+      "start": 0,
+      "end": 3
+    },
+    "attribution": {
+      "start": 3,
+      "end": 9
+    },
+    "optimization": {
+      "start": 9,
+      "end": 12
+    }
+  }
+}

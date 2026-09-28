@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme inheriting from Material3 borderless scheme -->
+    <style name="Theme.AppCompat.NoActionBar" parent="@android:style/Theme.DeviceDefault.NoActionBar" />
+</resources>

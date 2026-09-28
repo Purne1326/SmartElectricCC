@@ -1,0 +1,19 @@
+[Unit]
+Description=SmartElectric MQTT Background Worker Service
+After=network.target mosquitto.service
+Requires=mosquitto.service
+
+[Service]
+Type=simple
+User=jetson
+WorkingDirectory=/home/jetson/smartelectric/edge/backend
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/jetson/smartelectric/edge/backend/.venv/bin/python /home/jetson/smartelectric/edge/backend/mqtt_worker.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=smartelectric-worker
+
+[Install]
+WantedBy=multi-user.target

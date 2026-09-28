@@ -1,0 +1,2926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartElectric Energy Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ApexCharts JS -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        :root {
+            --bg-color: #080b11; /* Sleek deep navy-slate */
+            --canvas-bg: #0d111a; 
+            --card-bg: rgba(20, 26, 38, 0.6); /* Translucent glass card */
+            --card-active: rgba(59, 130, 246, 0.08); 
+            --card-border: rgba(255, 255, 255, 0.06); 
+            --text-primary: #cbd5e1; /* Slate 300 */
+            --text-secondary: #64748b; /* Slate 500 */
+            --text-white: #f8fafc; /* Slate 50 */
+            --accent-color: #3b82f6; /* Electric Blue */
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --emerald: #10b981; /* Solar Emerald */
+            --emerald-glow: rgba(16, 185, 129, 0.15);
+            --rose: #f43f5e; /* Red Alert */
+            --rose-glow: rgba(244, 63, 94, 0.2);
+            --amber: #f59e0b; /* Amber warning */
+            --glass-blur: blur(20px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.04) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.02) 0px, transparent 50%);
+        }
+
+        /* Container Layout */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        sidebar {
+            width: 280px;
+            background: rgba(13, 17, 26, 0.8);
+            backdrop-filter: var(--glass-blur);
+            border-right: 1px solid var(--card-border);
+            padding: 36px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 36px;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-left: 8px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--accent-color), var(--emerald));
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #080b11;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);
+        }
+
+        .logo-text h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--text-white);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .logo-text span {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            font-weight: 700;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            list-style: none;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 14.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-item:hover {
+            color: var(--text-white);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .nav-item.active {
+            color: var(--text-white);
+            background: rgba(59, 130, 246, 0.08);
+            box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.03);
+        }
+
+        .nav-item.active i {
+            color: var(--accent-color);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.01);
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .toggle-row-label {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .api-input-box {
+            background: rgba(0,0,0,0.15);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .api-input-box label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .api-input-box input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-white);
+            font-size: 12.5px;
+            outline: none;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .api-input-box input:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Main Content Panel */
+        main {
+            flex: 1;
+            background-color: var(--canvas-bg);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            min-width: 0;
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        /* Custom Scrollbar */
+        main::-webkit-scrollbar {
+            width: 6px;
+        }
+        main::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        main::-webkit-scrollbar-thumb {
+            background: var(--card-border);
+            border-radius: 10px;
+        }
+
+        /* Header block */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-white);
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--emerald);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.offline {
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            color: var(--rose);
+        }
+
+        .status-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .status-badge.online .dot {
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Tab Views */
+        .tab-view {
+            display: none;
+            flex-direction: column;
+            gap: 32px;
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+
+        .tab-view.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glassmorphic Cards */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Ambient alert banners */
+        .system-banner {
+            display: flex;
+            padding: 16px 20px;
+            border-radius: 12px;
+            align-items: center;
+            gap: 16px;
+            font-size: 13.5px;
+        }
+
+        .system-banner.solar {
+            background-color: rgba(16, 185, 129, 0.08);
+            border: 1px solid var(--emerald);
+            color: #a7f3d0;
+        }
+        .system-banner.grid {
+            background-color: rgba(59, 130, 246, 0.08);
+            border: 1px solid var(--accent-color);
+            color: #bfdbfe;
+        }
+        .system-banner.warning {
+            background-color: rgba(244, 63, 94, 0.08);
+            border: 1px solid var(--rose);
+            color: #ffe4e6;
+        }
+
+        .system-banner-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .system-banner.solar .system-banner-icon { color: var(--emerald); }
+        .system-banner.warning .system-banner-icon { color: var(--rose); }
+
+        .system-banner-text strong {
+            display: block;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 2px;
+        }
+        .system-banner-text p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Hero section layout */
+        .dashboard-hero-section {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-hero-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hero-gauge-card {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            gap: 24px;
+        }
+
+        .gauge-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        .hero-climate-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .climate-mini-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 24px;
+        }
+
+        .climate-mini-card.temp {
+            border-left: 3px solid var(--rose);
+        }
+        .climate-mini-card.hum {
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .climate-icon {
+            font-size: 18px;
+            color: var(--text-secondary);
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.02);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .climate-mini-card.temp .climate-icon { color: var(--rose); }
+        .climate-mini-card.hum .climate-icon { color: var(--accent-color); }
+
+        .climate-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .climate-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        .climate-mini-card .climate-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-white);
+        }
+
+        /* KPIs layout (Analytics View) */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+        }
+
+        .kpi-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .kpi-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .kpi-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-white);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.5px;
+        }
+
+        .kpi-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.02);
+        }
+
+        .kpi-icon.yellow {
+            background: rgba(245, 158, 11, 0.06);
+            color: var(--amber);
+            border: 1px solid rgba(245, 158, 11, 0.12);
+        }
+
+        .kpi-icon.blue {
+            background: rgba(59, 130, 246, 0.06);
+            color: var(--accent-color);
+            border: 1px solid rgba(59, 130, 246, 0.12);
+        }
+
+        .kpi-icon.red {
+            background: rgba(244, 63, 94, 0.06);
+            color: var(--rose);
+            border: 1px solid rgba(244, 63, 94, 0.12);
+        }
+
+        .kpi-icon.green {
+            background: rgba(16, 185, 129, 0.06);
+            color: var(--emerald);
+            border: 1px solid rgba(16, 185, 129, 0.12);
+        }
+
+        /* Appliance Grid and Control Cards */
+        .section-header {
+            font-family: 'Outfit', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .appliances-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .appliance-card {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            background: rgba(20, 26, 38, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .appliance-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.12);
+        }
+
+        .appliance-card.active {
+            border-color: var(--emerald);
+            background: linear-gradient(180deg, rgba(20, 26, 38, 0.5) 0%, rgba(16, 185, 129, 0.02) 100%);
+        }
+
+        .appliance-card.anomaly-state {
+            border-color: var(--rose);
+            background: linear-gradient(180deg, rgba(20, 26, 38, 0.5) 0%, rgba(244, 63, 94, 0.03) 100%);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .appliance-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .appliance-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .appliance-card.active .appliance-icon-wrapper {
+            color: var(--emerald);
+            background: rgba(16, 185, 129, 0.06);
+        }
+
+        .appliance-card.anomaly-state .appliance-icon-wrapper {
+            color: var(--rose);
+            background: rgba(244, 63, 94, 0.06);
+            animation: pulse-danger-icon 2s infinite;
+        }
+
+        @keyframes pulse-danger-icon {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .appliance-meta-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .appliance-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-white);
+        }
+
+        .appliance-pin {
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Status Chip Badges */
+        .status-chip {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .status-chip.neutral {
+            background: rgba(255,255,255,0.03);
+            color: var(--text-secondary);
+        }
+
+        .status-chip.active {
+            background: rgba(16, 185, 129, 0.06);
+            color: var(--emerald);
+            border-color: rgba(16, 185, 129, 0.15);
+        }
+
+        .status-chip.anomaly {
+            background: rgba(244, 63, 94, 0.06);
+            color: var(--rose);
+            border-color: rgba(244, 63, 94, 0.2);
+            animation: pulse-anomaly-badge 2s infinite;
+        }
+
+        @keyframes pulse-anomaly-badge {
+            0% { opacity: 0.95; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.95; }
+        }
+
+        /* Toggle Switches */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.2);
+            transition: .2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 34px;
+            border: 1px solid var(--card-border);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-secondary);
+            transition: .2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+            background-color: var(--emerald);
+        }
+
+        /* Power readout */
+        .card-power-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .card-power-w {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            transition: color 0.3s;
+        }
+
+        .appliance-card.active .card-power-w {
+            color: var(--text-white);
+        }
+
+        .card-power-a {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Billing Analytics styles */
+        .billing-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .billing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            min-height: 400px;
+        }
+
+        .slab-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .slab-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--card-border);
+        }
+
+        .slab-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .slab-rate {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .slab-cost {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-white);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cost-comparison-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .compare-box {
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .compare-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .compare-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-white);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .compare-value.saving {
+            color: var(--emerald);
+        }
+
+        /* System Logs styling */
+        .log-terminal {
+            background: #060910;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            line-height: 1.7;
+            height: 480px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .log-entry {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .log-time {
+            color: #475569;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        .log-level {
+            font-weight: 700;
+            flex-shrink: 0;
+            padding: 1px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .log-level.info {
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--emerald);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+        }
+
+        .log-level.warning {
+            background: rgba(245, 158, 11, 0.08);
+            color: var(--amber);
+            border: 1px solid rgba(245, 158, 11, 0.15);
+        }
+
+        .log-level.error {
+            background: rgba(244, 63, 94, 0.08);
+            color: var(--rose);
+            border: 1px solid rgba(244, 63, 94, 0.15);
+        }
+
+        .log-msg {
+            color: #cbd5e1;
+            word-break: break-all;
+        }
+
+        /* Safety Lockout Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 7, 10, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lockout-modal {
+            background: #121824;
+            border: 1px solid var(--rose);
+            border-radius: 16px;
+            padding: 40px;
+            width: 440px;
+            box-shadow: 0 10px 40px rgba(244, 63, 94, 0.15);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            animation: modalPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .lockout-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(244, 63, 94, 0.08);
+            color: var(--rose);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 1px solid rgba(244, 63, 94, 0.2);
+        }
+
+        .lockout-modal h3 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-white);
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .lockout-modal p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .close-modal-btn {
+            background: var(--rose);
+            color: var(--text-white);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+
+        .close-modal-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Diagnostic Row */
+        .diag-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .diag-box {
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: rgba(0, 0, 0, 0.15);
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .diag-box span {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        .diag-box p {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-white);
+            margin-top: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Tab options for Analytics */
+        .range-selector {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .range-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .range-btn.active {
+            background: var(--card-active);
+            color: var(--text-white);
+        }
+
+        /* AI Diagnostics Alert Styling */
+        .ai-recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            transition: transform 0.2s ease;
+        }
+        .ai-recommendation-item:hover {
+            transform: translateX(4px);
+        }
+        .ai-recommendation-item.info {
+            background: rgba(59, 130, 246, 0.06);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+        }
+        .ai-recommendation-item.caution {
+            background: rgba(245, 158, 11, 0.06);
+            border: 1px solid rgba(245, 158, 11, 0.15);
+            color: #fde047;
+        }
+        .ai-recommendation-item.warning {
+            background: rgba(244, 63, 94, 0.06);
+            border: 1px solid rgba(244, 63, 94, 0.15);
+            color: #fda4af;
+        }
+        .ai-recommendation-icon {
+            font-size: 18px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .ai-recommendation-text strong {
+            display: block;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 3px;
+        }
+
+        /* AI Grid & Forecasting Tab Styling */
+        .ai-kpi-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 22px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ai-kpi-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35), 0 0 15px rgba(168, 85, 247, 0.15);
+        }
+        .ai-kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), #a855f7);
+            opacity: 0.8;
+        }
+        .ai-kpi-card.severity-normal::before { background: linear-gradient(90deg, #10b981, #34d399); }
+        .ai-kpi-card.severity-warning::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .ai-kpi-card.severity-high::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+        .ai-kpi-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ai-kpi-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin: 4px 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .ai-attribution-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ai-attribution-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #a855f7);
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ai-opt-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .ai-opt-pill.active {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+        }
+        .ai-opt-pill.inactive {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+        }
+        .ai-sim-control {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .ai-slider-container {
+            flex: 1;
+            min-width: 260px;
+        }
+        .ai-slider {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .ai-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #a855f7;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+            transition: transform 0.15s ease;
+        }
+        .ai-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <sidebar>
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+                <div class="logo-text">
+                    <h1>SmartElectric</h1>
+                    <span>Edge Hub</span>
+                </div>
+            </div>
+            
+            <ul class="nav-links">
+                <li class="nav-item active" onclick="switchTab('dashboard')">
+                    <i class="fa-solid fa-house"></i> Dashboard
+                </li>
+                <li class="nav-item" onclick="switchTab('control')">
+                    <i class="fa-solid fa-toggle-on"></i> Control Panel
+                </li>
+                <li class="nav-item" onclick="switchTab('analytics')">
+                    <i class="fa-solid fa-chart-line"></i> Analytics & Cost
+                </li>
+                <li class="nav-item" onclick="switchTab('ai-forecast')">
+                    <i class="fa-solid fa-brain"></i> AI Grid & Forecasting
+                </li>
+                <li class="nav-item" onclick="switchTab('csi-sensing')">
+                    <i class="fa-solid fa-satellite-dish"></i> WiFi CSI Sensing
+                </li>
+                <li class="nav-item" onclick="switchTab('logs')">
+                    <i class="fa-solid fa-terminal"></i> Gateway Logs
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="toggle-row">
+                    <span class="toggle-row-label">Auto-Shedding</span>
+                    <label class="switch">
+                        <input type="checkbox" id="auto-shedding-toggle" onchange="toggleAutoShedding(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="api-input-box">
+                    <label>Target API Address</label>
+                    <input type="text" id="api-endpoint" value="" placeholder="http://localhost:8000">
+                </div>
+            </div>
+        </sidebar>
+
+        <!-- Main Workspace -->
+        <main>
+            <!-- Top Status Header -->
+            <header>
+                <div class="header-title">
+                    <h2 id="view-title">Dashboard Overview</h2>
+                    <p id="view-subtitle">Live gateway diagnostics and energy load statistics.</p>
+                </div>
+                <div id="conn-badge" class="status-badge online">
+                    <div class="dot"></div> <span id="conn-text">GATEWAY ONLINE</span>
+                </div>
+            </header>
+
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="tab-dashboard" class="tab-view active">
+                <!-- Power Source Banners -->
+                <div id="solar-banner" class="system-banner solar" style="display: none;">
+                    <div class="system-banner-icon"><i class="fa-solid fa-sun"></i></div>
+                    <div class="system-banner-text">
+                        <strong>Solar Generation Active</strong>
+                        <p>The total active load has exceeded the 400W threshold. The system has automatically switched to solar power to safeguard the grid.</p>
+                    </div>
+                </div>
+                <div id="grid-banner" class="system-banner grid" style="display: none;">
+                    <div class="system-banner-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="system-banner-text">
+                        <strong>Main Grid Active</strong>
+                        <p>Total appliance load is within the safety threshold of 400W. Running on standard grid supply.</p>
+                    </div>
+                </div>
+
+                <!-- Preemptive Overload & Shedding Banners -->
+                <div id="preemptive-warning-banner" class="system-banner warning" style="display: none;">
+                    <div class="system-banner-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="system-banner-text">
+                        <strong>Preemptive Overload Warning</strong>
+                        <p id="preemptive-warning-text">Future demand is predicted to exceed the 400W limit. Consider manually shedding loads.</p>
+                    </div>
+                </div>
+                <div id="shed-triggered-banner" class="system-banner solar" style="display: none;">
+                    <div class="system-banner-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="system-banner-text">
+                        <strong>Preemptive Load Shedding Active</strong>
+                        <p id="shed-triggered-text">Automatically turned off device to safeguard the grid.</p>
+                    </div>
+                </div>
+
+                <!-- Hero Section: Central Gauge & Climate -->
+                <div class="dashboard-hero-section">
+                    <!-- Main Bus Load Meter Panel -->
+                    <div class="glass-card hero-gauge-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span class="gauge-title">Main Bus Active Load</span>
+                            <span id="total-power-source-badge" class="status-chip active">GRID SUPPLY</span>
+                        </div>
+                        
+                        <div style="display: flex; align-items: baseline; gap: 10px; margin-top: 10px;">
+                            <span id="total-power" style="font-family: 'Outfit', sans-serif; font-size: 38px; font-weight: 700; color: var(--text-white);">0.0 W</span>
+                            <span id="total-current" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent-color); font-weight: 600;">0.00 A</span>
+                        </div>
+                        
+                        <!-- Progress load bar -->
+                        <div style="width: 100%; margin-top: 10px;">
+                            <div class="progress-bar-container" style="height: 8px; background: rgba(0,0,0,0.2); border-radius: 6px; overflow: hidden; border: 1px solid var(--card-border);">
+                                <div id="bus-load-fill" style="height: 100%; width: 0%; background: var(--accent-color); transition: width 0.6s ease; border-radius: 6px;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); margin-top: 6px; font-family: 'JetBrains Mono', monospace;">
+                                <span>0W (Idle)</span>
+                                <span>200W</span>
+                                <span>400W (Limit)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Climate Cards Column -->
+                    <div class="hero-climate-column">
+                        <div class="glass-card climate-mini-card temp">
+                            <div class="climate-icon"><i class="fa-solid fa-temperature-half"></i></div>
+                            <div class="climate-info">
+                                <span class="climate-label">Ambient Temperature</span>
+                                <span id="climate-temp" class="climate-value">0.0°C</span>
+                            </div>
+                        </div>
+                        <div class="glass-card climate-mini-card hum">
+                            <div class="climate-icon"><i class="fa-solid fa-droplet"></i></div>
+                            <div class="climate-info">
+                                <span class="climate-label">Relative Humidity</span>
+                                <span id="climate-hum" class="climate-value">0.0%</span>
+                            </div>
+                        </div>
+                        <!-- LDR Light card -->
+                        <div class="glass-card climate-mini-card ldr" style="margin-top: 12px; display: flex;">
+                            <div class="climate-icon" style="color: #fbbf24;"><i class="fa-solid fa-sun"></i></div>
+                            <div class="climate-info">
+                                <span class="climate-label">Room Light Level</span>
+                                <span id="climate-ldr" class="climate-value">0.0%</span>
+                            </div>
+                        </div>
+                        <!-- PIR Motion card -->
+                        <div class="glass-card climate-mini-card pir" style="margin-top: 12px; display: flex;">
+                            <div class="climate-icon" id="pir-icon" style="color: #a855f7;"><i class="fa-solid fa-person-rays"></i></div>
+                            <div class="climate-info">
+                                <span class="climate-label">Room Occupancy</span>
+                                <span id="climate-pir" class="climate-value">No Motion</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Efficiency Diagnostics Card -->
+                <div class="glass-card" id="ai-diagnostics-card" style="margin-top: 16px; padding: 24px; display: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                        <div class="section-header" style="margin-top: 0; margin-bottom: 0; font-size: 16px; font-weight: 700;">
+                            <i class="fa-solid fa-brain" style="color: #a855f7; font-size: 16px;"></i>
+                            AI Efficiency Diagnostics
+                        </div>
+                        <span class="status-chip active" style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.2); color: #c084fc; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            ACTIVE DIAGNOSIS
+                        </span>
+                    </div>
+                    <div id="ai-diagnostics-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- AI Recommendations populated dynamically -->
+                    </div>
+                </div>
+
+                <div class="section-header" style="margin-top: 16px;">
+                    <i class="fa-solid fa-network-wired" style="color: var(--accent-color); font-size: 16px;"></i>
+                    Live Appliance status
+                </div>
+
+                <div class="appliances-grid" id="dashboard-appliances">
+                    <!-- Cards populated dynamically by JS -->
+                </div>
+
+                <!-- AI Grid Decision Summary Widget on Dashboard -->
+                <div class="glass-card" style="margin-top: 24px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; border-left: 4px solid #a855f7; background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(15, 23, 42, 0.7) 100%);">
+                    <div style="display: flex; align-items: center; gap: 18px;">
+                        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #c084fc; box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 15px; font-weight: 700; color: var(--text-white); display: flex; align-items: center; gap: 8px;">
+                                AI Grid Decision Engine: <span id="dash-ai-severity" style="color: #34d399;">NORMAL</span>
+                            </div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 4px;">
+                                Primary Load Driver: <strong id="dash-ai-top-app" style="color: #f8fafc;">Scanning...</strong> | Risk Score: <strong id="dash-ai-score" style="color: #38bdf8;">0%</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="range-btn active" style="background: rgba(168, 85, 247, 0.25); border: 1px solid rgba(168, 85, 247, 0.5); color: #d8b4fe; padding: 10px 18px; font-size: 12.5px; border-radius: 10px; display: flex; align-items: center; gap: 8px;" onclick="switchTab('ai-forecast')">
+                        View 1-Hour Forecast & Attribution <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <div class="section-header" style="margin-top: 32px;">
+                    <i class="fa-solid fa-sun" style="color: var(--accent-color); font-size: 16px;"></i>
+                    Solar Generation Forecast (Next 3 Hours)
+                </div>
+                <div class="glass-card" style="margin-top: 16px; padding: 24px;">
+                    <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px; gap: 16px;">
+                        <div class="glass-card kpi-card" style="background: rgba(0,0,0,0.15); border: 1px solid var(--card-border);">
+                            <div class="kpi-info">
+                                <span class="kpi-label">In 1 Hour</span>
+                                <div id="solar-f1" class="kpi-value" style="color: var(--accent-color); font-size: 20px;">0.0 W</div>
+                            </div>
+                        </div>
+                        <div class="glass-card kpi-card" style="background: rgba(0,0,0,0.15); border: 1px solid var(--card-border);">
+                            <div class="kpi-info">
+                                <span class="kpi-label">In 2 Hours</span>
+                                <div id="solar-f2" class="kpi-value" style="color: var(--accent-color); font-size: 20px;">0.0 W</div>
+                            </div>
+                        </div>
+                        <div class="glass-card kpi-card" style="background: rgba(0,0,0,0.15); border: 1px solid var(--card-border);">
+                            <div class="kpi-info">
+                                <span class="kpi-label">In 3 Hours</span>
+                                <div id="solar-f3" class="kpi-value" style="color: var(--accent-color); font-size: 20px;">0.0 W</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="solar-forecast-chart" style="height: 250px;"></div>
+                </div>
+            </div>
+
+            <!-- 2. CONTROL PANEL VIEW -->
+            <div id="tab-control" class="tab-view">
+                <div class="section-header">
+                    <i class="fa-solid fa-toggle-on" style="color: var(--accent-color); font-size: 16px;"></i>
+                    Relay Actuators (Anti-Chatter Safety Locks Active)
+                </div>
+
+                <div class="appliances-grid" id="control-switches">
+                    <!-- Switches populated dynamically -->
+                </div>
+
+                <div class="glass-card" style="margin-top: 16px; padding: 24px;">
+                    <div class="section-header" style="font-size: 15px; margin-bottom: 12px;">
+                        <i class="fa-solid fa-circle-info" style="color: var(--accent-color); font-size: 14px;"></i>
+                        Anti-Chattering Protection Detail
+                    </div>
+                    <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.7;">
+                        A safety cooldown lock of <b>3 seconds</b> is enforced programmatically in the FastAPI server and replicated in this client UI to prevent relay contacts from chattering. Rapid cycling of relays can weld the physical contacts together and damage the connected ESP32 pin maps.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 3. ANALYTICS VIEW -->
+            <div id="tab-analytics" class="tab-view">
+                <div class="kpi-grid">
+                    <div class="glass-card kpi-card">
+                        <div class="kpi-info">
+                            <span class="kpi-label">Accumulated Energy</span>
+                            <div id="analytics-kwh" class="kpi-value">0.0000 kWh</div>
+                        </div>
+                        <div class="kpi-icon blue"><i class="fa-solid fa-bolt"></i></div>
+                    </div>
+                    <div class="glass-card kpi-card">
+                        <div class="kpi-info">
+                            <span class="kpi-label">Flat-Rate Billing (₹7/kWh)</span>
+                            <div id="analytics-flat-cost" class="kpi-value">₹0.00</div>
+                        </div>
+                        <div class="kpi-icon yellow"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                    </div>
+                    <div class="glass-card kpi-card">
+                        <div class="kpi-info">
+                            <span class="kpi-label">Tiered Slab Billing</span>
+                            <div id="analytics-tiered-cost" class="kpi-value">₹0.00</div>
+                        </div>
+                        <div class="kpi-icon green"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                    </div>
+                </div>
+
+                <div class="billing-grid">
+                    <!-- Area Chart -->
+                    <div class="glass-card chart-card">
+                        <div class="section-header" style="justify-content: space-between; margin-bottom: 24px;">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <i class="fa-solid fa-chart-area" style="color: var(--accent-color); font-size: 16px;"></i>
+                                Historical Consumption Trend
+                            </div>
+                            <div class="range-selector">
+                                <button class="range-btn active" id="range-today" onclick="setMetricsRange('today')">Today</button>
+                                <button class="range-btn" id="range-month" onclick="setMetricsRange('month')">Month</button>
+                                <button class="range-btn" id="range-total" onclick="setMetricsRange('total')">Total</button>
+                            </div>
+                        </div>
+                        <div id="power-history-chart"></div>
+                    </div>
+
+                    <!-- Tariff slabs breakdown panel -->
+                    <div class="glass-card" style="display:flex; flex-direction:column; gap:24px;">
+                        <div class="section-header">
+                            <i class="fa-solid fa-calculator" style="color: var(--accent-color); font-size: 16px;"></i>
+                            Tariff slab rate (INR)
+                        </div>
+                        
+                        <div class="slab-breakdown">
+                            <div class="slab-row">
+                                <div>
+                                    <div class="slab-name">First 100 kWh</div>
+                                    <div class="slab-rate">Tier 1 Rate</div>
+                                </div>
+                                <div class="slab-cost">₹4.50 / kWh</div>
+                            </div>
+                            <div class="slab-row">
+                                <div>
+                                    <div class="slab-name">Next 200 kWh (101-300)</div>
+                                    <div class="slab-rate">Tier 2 Rate</div>
+                                </div>
+                                <div class="slab-cost">₹6.50 / kWh</div>
+                            </div>
+                            <div class="slab-row">
+                                <div>
+                                    <div class="slab-name">Above 300 kWh</div>
+                                    <div class="slab-rate">Tier 3 Rate</div>
+                                </div>
+                                <div class="slab-cost">₹8.00 / kWh</div>
+                            </div>
+                        </div>
+
+                        <div class="cost-comparison-container">
+                            <div class="compare-box" style="border-top: 2px solid var(--accent-color);">
+                                <div class="compare-title">Tiered Tariff Saving</div>
+                                <div id="saving-value" class="compare-value saving">₹0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. GATEWAY LOGS VIEW -->
+            <div id="tab-logs" class="tab-view">
+                <div class="section-header" style="justify-content: space-between; margin-bottom: 20px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <i class="fa-solid fa-terminal" style="color: var(--accent-color); font-size: 16px;"></i>
+                        System Journal Logs
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-secondary); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
+                        Live update active (3s)
+                    </div>
+                </div>
+
+                <div class="log-terminal" id="logs-output">
+                    <!-- Logs populated by JS -->
+                </div>
+            </div>
+
+            <!-- 5. AI FORECAST & DECISION VIEW -->
+            <div id="tab-ai-forecast" class="tab-view">
+                <div class="section-header" style="justify-content: space-between; display: flex; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-brain" style="color: #a855f7; font-size: 18px;"></i>
+                        AI Neural Energy Forecasting & Decision Engine
+                    </div>
+                    <span class="status-chip active" style="background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); color: #d8b4fe; font-size: 11px; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.5px;">
+                        ONNX & GRU MODELS ONLINE
+                    </span>
+                </div>
+
+                <!-- Simulation & Mode Control Bar -->
+                <div class="ai-sim-control">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <label class="switch" style="transform: scale(0.9);">
+                            <input type="checkbox" id="ai-sim-toggle" onchange="toggleAiSimulation(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                        <div>
+                            <div style="font-size: 13.5px; font-weight: 700; color: var(--text-white);">Simulate Grid Load Override</div>
+                            <div style="font-size: 11.5px; color: var(--text-secondary);">Toggle to manually test neural network stress responses</div>
+                        </div>
+                    </div>
+                    <div class="ai-slider-container" id="ai-slider-wrap" style="opacity: 0.4; pointer-events: none; transition: opacity 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+                            <span style="color: var(--text-secondary);">Input Load: <strong id="ai-slider-val-text" style="color: #c084fc; font-size: 14px;">250 W</strong></span>
+                            <span style="color: var(--text-muted); font-size: 11px;">0W — 1200W</span>
+                        </div>
+                        <input type="range" id="ai-load-slider" class="ai-slider" min="0" max="1200" step="10" value="250" oninput="onAiSliderChange(this.value)">
+                    </div>
+                    <button class="range-btn active" style="background: linear-gradient(135deg, #a855f7, #6366f1); border: none; padding: 10px 18px; font-size: 12.5px; display: flex; align-items: center; gap: 8px; border-radius: 10px; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);" onclick="triggerAiInference()">
+                        <i class="fa-solid fa-rotate"></i> Run Inference Now
+                    </button>
+                </div>
+
+                <!-- Top 3 KPI Cards -->
+                <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px;">
+                    <div class="ai-kpi-card" id="ai-kpi-severity-card">
+                        <div class="ai-kpi-title"><i class="fa-solid fa-shield-halved" style="color: #34d399;"></i> GRID LOAD SEVERITY STATE</div>
+                        <div class="ai-kpi-value" id="ai-kpi-severity-val" style="color: #34d399;">NORMAL</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;" id="ai-kpi-severity-sub">Optimal grid capacity within safety margins</div>
+                    </div>
+                    <div class="ai-kpi-card" id="ai-kpi-anomaly-card">
+                        <div class="ai-kpi-title"><i class="fa-solid fa-chart-pie" style="color: #38bdf8;"></i> ANOMALY PROBABILITY SCORE</div>
+                        <div class="ai-kpi-value" id="ai-kpi-anomaly-val" style="color: #38bdf8;">0%</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;" id="ai-kpi-anomaly-sub">Calculated stress risk factor</div>
+                    </div>
+                    <div class="ai-kpi-card" id="ai-kpi-top-card">
+                        <div class="ai-kpi-title"><i class="fa-solid fa-bolt" style="color: #f472b6;"></i> TOP ATTRIBUTED LOAD</div>
+                        <div class="ai-kpi-value" id="ai-kpi-top-val" style="color: #f472b6;">--</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;" id="ai-kpi-top-sub">Primary peak demand driver</div>
+                    </div>
+                </div>
+
+                <!-- Middle: 1-Hour Forecast Chart -->
+                <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div style="font-size: 16px; font-weight: 700; color: var(--text-white); display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-chart-area" style="color: #3b82f6;"></i>
+                            Projected Active Power Curve (1-Hour Horizon)
+                        </div>
+                        <span style="font-size: 12px; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+                            Model: <strong style="color: #c084fc;">GRU / ONNX Forecaster</strong>
+                        </span>
+                    </div>
+                    <div id="ai-forecast-chart" style="height: 280px;"></div>
+                </div>
+
+                <!-- Bottom Row: Attribution Breakdown & Strategic Recommendations -->
+                <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px;">
+                    <!-- Appliance Attribution Hours -->
+                    <div class="glass-card" style="padding: 24px;">
+                        <div style="font-size: 16px; font-weight: 700; color: var(--text-white); margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-plug-circle-bolt" style="color: #a855f7;"></i>
+                            Predicted Appliance Attribution Profile (24h)
+                        </div>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 18px;">
+                            Model 2 multi-task attribution estimating daily runtime hours and relative energy contribution per appliance.
+                        </p>
+                        <div id="ai-attribution-list" style="display: flex; flex-direction: column; gap: 14px;">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Recommendations & Optimization Flags -->
+                    <div class="glass-card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="font-size: 16px; font-weight: 700; color: var(--text-white); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-lightbulb" style="color: #fbbf24;"></i>
+                                Strategic AI Scheduling Advisory
+                            </div>
+                            <div style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 12px; padding: 18px; margin-bottom: 22px;">
+                                <div style="display: flex; gap: 12px; align-items: flex-start;">
+                                    <i class="fa-solid fa-quote-left" style="color: #c084fc; font-size: 20px; margin-top: 2px;"></i>
+                                    <p id="ai-strategic-rec" style="font-size: 14px; line-height: 1.6; color: #f8fafc; font-style: italic; margin: 0;">
+                                        Analyzing consumption curves for scheduling recommendations...
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="font-size: 12.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+                                Active Optimization Flags
+                            </div>
+                            <div id="ai-opt-flags-wrap" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                <span class="ai-opt-pill inactive" id="opt-flag-shedding"><i class="fa-solid fa-shield"></i> Load Shedding</span>
+                                <span class="ai-opt-pill inactive" id="opt-flag-scheduling"><i class="fa-solid fa-clock"></i> Smart Scheduling</span>
+                                <span class="ai-opt-pill inactive" id="opt-flag-warning"><i class="fa-solid fa-triangle-exclamation"></i> High Power Warning</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. WiFi CSI SPATIAL INTELLIGENCE TAB -->
+            <div id="tab-csi-sensing" class="tab-view">
+                <!-- Header Banner Card -->
+                <div class="glass-card" style="background: linear-gradient(135deg, rgba(13, 17, 26, 0.9) 0%, rgba(20, 26, 38, 0.95) 100%); border: 1px solid rgba(59, 130, 246, 0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); display: flex; align-items: center; justify-content: center; color: var(--accent-color); font-size: 20px;">
+                                    <i class="fa-solid fa-satellite-dish"></i>
+                                </div>
+                                <div>
+                                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 700; color: var(--text-white);">WiFi CSI Spatial Intelligence Hub</h3>
+                                    <p style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
+                                        Real-time RF Doppler presence tracking & automatic 4-zone relay mapping. Zero cameras used.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span id="csi-calibration-badge" class="status-badge" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); color: var(--amber);">
+                                <div class="dot"></div> <span id="csi-status-text">UNCALIBRATED</span>
+                            </span>
+                            <button id="csi-autoscan-btn" onclick="triggerCSIAutoScan()" style="background: linear-gradient(135deg, var(--accent-color), #8b5cf6); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); transition: all 0.2s ease;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> 🛰️ Auto-Scan & Map Lab
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ESP32 Hardware Node Status Row -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div class="glass-card" style="background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); padding: 18px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 12px; font-weight: 700; color: var(--text-white);">ESP32 Node 1 (Tx/Rx)</span>
+                                <span class="status-chip active" style="font-size: 10px;">ONLINE</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace;">Position: Table Start (0.0m)</div>
+                            <div style="font-size: 12px; color: var(--emerald); font-weight: 600; margin-top: 4px; font-family: 'JetBrains Mono', monospace;">RSSI: -38 dBm | Channel 6</div>
+                        </div>
+
+                        <div class="glass-card" style="background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); padding: 18px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 12px; font-weight: 700; color: var(--text-white);">ESP32 Node 2 (Rx)</span>
+                                <span class="status-chip active" style="font-size: 10px;">ONLINE</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace;">Position: Table End (3.2m)</div>
+                            <div style="font-size: 12px; color: var(--emerald); font-weight: 600; margin-top: 4px; font-family: 'JetBrains Mono', monospace;">RSSI: -42 dBm | Channel 6</div>
+                        </div>
+
+                        <div class="glass-card" style="background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); padding: 18px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 12px; font-weight: 700; color: var(--text-white);">Subcarrier Spectrum</span>
+                                <span class="status-chip active" style="font-size: 10px; background: rgba(59, 130, 246, 0.1); color: var(--accent-color); border: 1px solid rgba(59, 130, 246, 0.2);">64 OFDM</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace;">Frequency: 2.4 GHz Band</div>
+                            <div style="font-size: 12px; color: var(--accent-color); font-weight: 600; margin-top: 4px; font-family: 'JetBrains Mono', monospace;">Sampling: 100 Hz Continuous</div>
+                        </div>
+                    </div>
+
+                    <!-- Real-Time WiFi CSI Thermal Heatmap Canvas -->
+                    <div style="background: rgba(6, 9, 16, 0.85); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 24px; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); font-weight: 700;">
+                                <i class="fa-solid fa-fire-flame-curved" style="color: var(--amber);"></i> Live RF Thermal Presence Heatmap (RuView Renderer)
+                            </span>
+                            <span style="font-size: 11px; color: var(--emerald); font-weight: 700; font-family: 'JetBrains Mono', monospace;">
+                                📡 2.4GHz RF Doppler Energy Map
+                            </span>
+                        </div>
+                        <div style="width: 100%; display: flex; justify-content: center; background: #070a11; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); padding: 10px;">
+                            <canvas id="csi-heatmap-canvas" width="800" height="180" style="width: 100%; max-width: 800px; height: 180px; border-radius: 8px;"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Live 4-Bulb Table Interactive Floorplan Grid -->
+                    <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 24px; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 8px;">
+                            <span style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); font-weight: 700;">
+                                <i class="fa-solid fa-table-cells"></i> 4-Zone Table Sensing Grid (3.2m Span)
+                            </span>
+                            <span id="csi-live-pos-label" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-secondary); font-weight: 700;">
+                                Human Position: Awaiting ESP32 CSI Scan...
+                            </span>
+                        </div>
+
+                        <!-- 4 Zonal Relays Visual Representation -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; position: relative;" id="csi-zones-container">
+                            <!-- Zone 1 -->
+                            <div id="csi-zone-card-1" class="glass-card csi-zone-card" style="border: 1px solid var(--card-border); text-align: center; padding: 24px 14px; transition: all 0.3s ease;">
+                                <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i></div>
+                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 1</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">0.0m - 0.8m</div>
+                                <div id="csi-badge-1" class="status-chip inactive" style="margin-top: 12px; display: inline-block;">VACANT (OFF)</div>
+                            </div>
+
+                            <!-- Zone 2 -->
+                            <div id="csi-zone-card-2" class="glass-card csi-zone-card" style="border: 1px solid var(--card-border); text-align: center; padding: 24px 14px; transition: all 0.3s ease;">
+                                <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i></div>
+                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 2</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">0.8m - 1.6m</div>
+                                <div id="csi-badge-2" class="status-chip inactive" style="margin-top: 12px; display: inline-block;">VACANT (OFF)</div>
+                            </div>
+
+                            <!-- Zone 3 -->
+                            <div id="csi-zone-card-3" class="glass-card csi-zone-card" style="border: 1px solid var(--card-border); text-align: center; padding: 24px 14px; transition: all 0.3s ease;">
+                                <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i></div>
+                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 3</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">1.6m - 2.4m</div>
+                                <div id="csi-badge-3" class="status-chip inactive" style="margin-top: 12px; display: inline-block;">VACANT (OFF)</div>
+                            </div>
+
+                            <!-- Zone 4 -->
+                            <div id="csi-zone-card-4" class="glass-card csi-zone-card" style="border: 1px solid var(--card-border); text-align: center; padding: 24px 14px; transition: all 0.3s ease;">
+                                <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i></div>
+                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 4</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">2.4m - 3.2m</div>
+                                <div id="csi-badge-4" class="status-chip inactive" style="margin-top: 12px; display: inline-block;">VACANT (OFF)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diagnostics footer -->
+            <div class="diag-grid">
+                <div class="diag-box">
+                    <span>Active SQLite Database</span>
+                    <p id="diag-db-path">Loading...</p>
+                </div>
+                <div class="diag-box">
+                    <span>Mosquitto Broker Link</span>
+                    <p id="diag-broker-status">Checking...</p>
+                </div>
+                <div class="diag-box">
+                    <span>Edge Clock</span>
+                    <p id="diag-clock">Loading...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Safety Lockout Overlay -->
+    <div id="lockout-overlay" class="modal-overlay">
+        <div class="lockout-modal">
+            <div class="lockout-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3>Safety Lockout Active</h3>
+            <p>Relay contact chattering protection is in progress. Toggles are locked for 3 seconds to safeguard the microcontroller and relay pins.</p>
+            <button class="close-modal-btn" onclick="closeLockoutModal()">Acknowledge</button>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        let currentTab = 'dashboard';
+        let activeRange = 'today';
+        let apexChartInstance = null;
+        let solarChartInstance = null;
+        let aiForecastChartInstance = null;
+        let isAiSimulated = false;
+        let aiSimulatedWatts = 250.0;
+        let lastToggleTime = {}; // Cooldown tracking (appliance -> timestamp)
+
+        // Automatically resolve API Base URL
+        const hostname = window.location.hostname;
+        const defaultApiBase = hostname ? `http://${hostname}:8000` : 'http://localhost:8000';
+        document.getElementById('api-endpoint').value = defaultApiBase;
+
+        function getApiUrl() {
+            let val = document.getElementById('api-endpoint').value.trim();
+            if (!val.startsWith('http://') && !val.startsWith('https://')) {
+                val = 'http://' + val;
+            }
+            if (val.endsWith('/')) {
+                val = val.slice(0, -1);
+            }
+            return val;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
+
+            const navIndexMap = {
+                'dashboard': 0,
+                'control': 1,
+                'analytics': 2,
+                'ai-forecast': 3,
+                'csi-sensing': 4,
+                'logs': 5
+            };
+            const navItems = document.querySelectorAll('.nav-item');
+            if (navItems[navIndexMap[tabName]]) {
+                navItems[navIndexMap[tabName]].classList.add('active');
+            }
+
+            const tabView = document.getElementById(`tab-${tabName}`);
+            if (tabView) {
+                tabView.classList.add('active');
+            }
+
+            currentTab = tabName;
+
+            // Page headings
+            const titles = {
+                'dashboard': ['Dashboard Overview', 'Live gateway diagnostics and energy load statistics.'],
+                'control': ['Actuator Control Panel', 'Toggle smart relay switches and review safety sequences.'],
+                'analytics': ['Analytics & Costs', 'Detailed Indian tiered slab estimations and historical curve.'],
+                'ai-forecast': ['AI Grid & Forecasting', 'ONNX Machine Learning peak load attribution and solar forecaster.'],
+                'csi-sensing': ['WiFi CSI Spatial Intelligence', 'Real-time RF Doppler zonal tracking and ESP32 node diagnostics.'],
+                'logs': ['Gateway Log Terminal', 'Journal logs and MQTT subscriber broker notifications.']
+            };
+
+            if (titles[tabName]) {
+                document.getElementById('view-title').innerText = titles[tabName][0];
+                document.getElementById('view-subtitle').innerText = titles[tabName][1];
+            }
+
+            // Immediate update for the switched tab
+            fetchData();
+        }
+
+        function setMetricsRange(range) {
+            document.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`range-${range}`).classList.add('active');
+            activeRange = range;
+            fetchMetricsData();
+        }
+
+        // Safety lockout modal control
+        function triggerLockoutModal() {
+            document.getElementById('lockout-overlay').style.display = 'flex';
+        }
+
+        // Close lockout safety modal
+        function closeLockoutModal() {
+            document.getElementById('lockout-overlay').style.display = 'none';
+        }
+
+        // Initialize ApexCharts
+        function initChart() {
+            const options = {
+                series: [{
+                    name: 'Active Power (W)',
+                    data: []
+                }],
+                chart: {
+                    type: 'area',
+                    height: 320,
+                    background: 'transparent',
+                    foreColor: '#64748b',
+                    toolbar: { show: false },
+                    animations: {
+                        enabled: true,
+                        easing: 'linear',
+                        dynamicAnimation: {
+                            speed: 600
+                        }
+                    }
+                },
+                colors: ['#3b82f6'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.25,
+                        opacityTo: 0.01,
+                        stops: [0, 90, 100]
+                    }
+                },
+                dataLabels: { enabled: false },
+                stroke: { curve: 'smooth', width: 2 },
+                xaxis: {
+                    type: 'datetime',
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
+                },
+                yaxis: {
+                    labels: {
+                        formatter: function (value) {
+                            return Math.round(value) + " W";
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: 'rgba(255,255,255,0.02)',
+                    strokeDashArray: 3
+                },
+                tooltip: {
+                    theme: 'dark'
+                }
+            };
+
+            const chartEl = document.getElementById('power-history-chart');
+            if (chartEl) {
+                apexChartInstance = new ApexCharts(chartEl, options);
+                apexChartInstance.render();
+            }
+        }
+
+        // Fetch metrics data (kWh and Costs)
+        async function fetchMetricsData() {
+            const apiBase = getApiUrl();
+            try {
+                const res = await fetch(`${apiBase}/api/metrics?range_type=${activeRange}`);
+                if (!res.ok) throw new Error("Metrics fetch error");
+                const data = await res.json();
+
+                // Totals
+                document.getElementById('analytics-kwh').innerText = `${data.totals.kwh.toFixed(4)} kWh`;
+                document.getElementById('analytics-flat-cost').innerText = `₹${data.totals.flat_cost_inr.toFixed(2)}`;
+                document.getElementById('analytics-tiered-cost').innerText = `₹${data.totals.tiered_cost_inr.toFixed(2)}`;
+
+                // Savings
+                const saving = data.totals.flat_cost_inr - data.totals.tiered_cost_inr;
+                const savingEl = document.getElementById('saving-value');
+                if (saving >= 0) {
+                    savingEl.innerText = `₹${saving.toFixed(2)}`;
+                    savingEl.style.color = 'var(--emerald)';
+                } else {
+                    savingEl.innerText = `-₹${Math.abs(saving).toFixed(2)}`;
+                    savingEl.style.color = 'var(--rose)';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Fetch logs
+        async function fetchLogs() {
+            const apiBase = getApiUrl();
+            try {
+                const res = await fetch(`${apiBase}/api/logs?limit=50`);
+                if (!res.ok) throw new Error("Logs fetch error");
+                const logs = await res.json();
+
+                const logsOutput = document.getElementById('logs-output');
+                if (logs.length === 0) {
+                    logsOutput.innerHTML = `<div class="log-entry"><span class="log-msg" style="color:var(--text-secondary)">No system journal records found.</span></div>`;
+                    return;
+                }
+
+                logsOutput.innerHTML = logs.map(entry => {
+                    const levelClass = entry.level.toLowerCase();
+                    return `
+                        <div class="log-entry">
+                            <span class="log-time">[${entry.timestamp}]</span>
+                            <span class="log-level ${levelClass}">${entry.level}</span>
+                            <span class="log-msg">${escapeHtml(entry.message)}</span>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Fetch chart history
+        async function fetchHistory() {
+            const apiBase = getApiUrl();
+            try {
+                const res = await fetch(`${apiBase}/api/history?limit=100`);
+                if (!res.ok) throw new Error("History fetch error");
+                const history = await res.json();
+
+                if (apexChartInstance && history.length > 0) {
+                    // Group history by timestamp and sum power for active loads
+                    const groupedData = {};
+                    history.forEach(row => {
+                        const ts = new Date(row.timestamp).getTime();
+                        if (!groupedData[ts]) groupedData[ts] = 0.0;
+                        groupedData[ts] += parseFloat(row.power || 0.0);
+                    });
+
+                    // Format as coordinates
+                    const seriesData = Object.keys(groupedData).map(ts => {
+                        return {
+                            x: parseInt(ts),
+                            y: parseFloat(groupedData[ts].toFixed(2))
+                        };
+                    }).sort((a, b) => a.x - b.x);
+
+                    apexChartInstance.updateSeries([{
+                        name: 'Total Power (W)',
+                        data: seriesData
+                    }]);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Handle Relay toggles with safety cooldown
+        async function toggleRelay(applianceName, checkboxEl) {
+            const now = Date.now();
+            const lastToggle = lastToggleTime[applianceName] || 0;
+            
+            // 3 seconds cooldown check
+            if (now - lastToggle < 3000) {
+                checkboxEl.checked = !checkboxEl.checked; // Revert checkbox state
+                triggerLockoutModal();
+                return;
+            }
+
+            // Set last toggle timestamp
+            lastToggleTime[applianceName] = now;
+
+            const targetState = checkboxEl.checked ? 1 : 0;
+            const apiBase = getApiUrl();
+
+            try {
+                const res = await fetch(`${apiBase}/api/control`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        appliance: applianceName,
+                        state: targetState
+                    })
+                });
+
+                if (!res.ok) throw new Error("Control API error");
+                
+                // Success: dynamically update status in local UI immediately
+                const card = document.getElementById(`card-${applianceName}`);
+                if (card) {
+                    if (targetState === 1) {
+                        card.classList.add('active');
+                    } else {
+                        card.classList.remove('active');
+                        // reset reading
+                        const powerReadout = card.querySelector('.card-power-w');
+                        if (powerReadout) powerReadout.innerText = '0.0 W';
+                    }
+                }
+            } catch (e) {
+                console.error("Relay toggle failed", e);
+                // Revert checkbox state on network error
+                checkboxEl.checked = !checkboxEl.checked;
+            }
+        }
+
+        // Main fetching driver
+        async function fetchData() {
+            const apiBase = getApiUrl();
+            const badge = document.getElementById('conn-badge');
+            const badgeText = document.getElementById('conn-text');
+            const dbPathEl = document.getElementById('diag-db-path');
+            const brokerStatusEl = document.getElementById('diag-broker-status');
+            const clockEl = document.getElementById('diag-clock');
+
+            // Clock update
+            clockEl.innerText = new Date().toLocaleTimeString();
+
+            try {
+                const res = await fetch(`${apiBase}/api/status`);
+                if (!res.ok) throw new Error("API status offline");
+                const data = await res.json();
+
+                badge.classList.remove('offline');
+                badge.classList.add('online');
+                badgeText.innerText = "GATEWAY ONLINE";
+
+                // Update power source banners
+                const solarBanner = document.getElementById('solar-banner');
+                const gridBanner = document.getElementById('grid-banner');
+                if (solarBanner && gridBanner) {
+                    if (data.power_source === 'Solar') {
+                        solarBanner.style.display = 'flex';
+                        gridBanner.style.display = 'none';
+                    } else {
+                        solarBanner.style.display = 'none';
+                        gridBanner.style.display = 'flex';
+                    }
+                }
+
+                // Update auto-shedding checkbox state
+                const autoShedToggle = document.getElementById('auto-shedding-toggle');
+                if (autoShedToggle) {
+                    autoShedToggle.checked = data.auto_shedding_enabled;
+                }
+
+                // Update preemptive warning and auto-shed banners
+                const warningBanner = document.getElementById('preemptive-warning-banner');
+                const warningText = document.getElementById('preemptive-warning-text');
+                const shedBanner = document.getElementById('shed-triggered-banner');
+                const shedText = document.getElementById('shed-triggered-text');
+                
+                if (warningBanner && shedBanner) {
+                    if (data.preemptive_warning) {
+                        if (data.auto_shedding_enabled) {
+                            warningBanner.style.display = 'none';
+                            if (data.shed_triggered) {
+                                shedBanner.style.display = 'flex';
+                                shedText.innerText = `Auto-Shedding Active: Automatically turned OFF ${data.shedded_appliance} to prevent predicted overload (${data.predicted_max_power} W > 400W).`;
+                            } else {
+                                shedBanner.style.display = 'none';
+                            }
+                        } else {
+                            shedBanner.style.display = 'none';
+                            warningBanner.style.display = 'flex';
+                            warningText.innerText = `Preemptive Overload Warning: Future load is predicted to peak at ${data.predicted_max_power} W in the next hour. Consider manually shutting down devices.`;
+                        }
+                    } else {
+                        warningBanner.style.display = 'none';
+                        shedBanner.style.display = 'none';
+                    }
+                }
+
+                // Update static diagnostics
+                dbPathEl.innerText = "/home/jetson/smartelectric/edge/backend/edge_iot.db";
+                brokerStatusEl.innerText = "Connected";
+                brokerStatusEl.style.color = "var(--emerald)";
+
+                // Update totals
+                let totalPower = 0.0;
+                let totalCurrent = 0.0;
+
+                for (const app of data.appliances) {
+                    const tel = data.latest_telemetry[app.name];
+                    totalPower += tel ? parseFloat(tel.power || 0.0) : 0.0;
+                    totalCurrent += tel ? parseFloat(tel.current || 0.0) : 0.0;
+                }
+
+                // Update total text
+                document.getElementById('total-power').innerText = `${totalPower.toFixed(1)} W`;
+                document.getElementById('total-current').innerText = `${totalCurrent.toFixed(2)} A`;
+                
+                // Update Bus Load progress bar
+                const busFill = document.getElementById('bus-load-fill');
+                const loadPercentage = Math.min((totalPower / 400.0) * 100, 100);
+                if (busFill) {
+                    busFill.style.width = `${loadPercentage}%`;
+                    
+                    if (totalPower > 350) {
+                        busFill.style.background = 'var(--rose)';
+                    } else if (totalPower > 250) {
+                        busFill.style.background = 'var(--amber)';
+                    } else {
+                        busFill.style.background = 'var(--accent-color)';
+                    }
+                }
+
+                // Update Power Source Badge
+                const sourceBadge = document.getElementById('total-power-source-badge');
+                if (sourceBadge) {
+                    sourceBadge.innerText = data.power_source === 'Solar' ? 'SOLAR SUPPLY' : 'GRID SUPPLY';
+                    sourceBadge.className = data.power_source === 'Solar' ? 'status-chip active' : 'status-chip neutral';
+                }
+
+                document.getElementById('climate-temp').innerText = `${data.dht.temperature.toFixed(1)}°C`;
+                document.getElementById('climate-hum').innerText = `${data.dht.humidity.toFixed(1)}%`;
+
+                // Update LDR and PIR values
+                const ldrVal = data.dht.ldr !== undefined ? data.dht.ldr : 0.0;
+                const pirVal = data.dht.pir !== undefined ? data.dht.pir : 0;
+                
+                document.getElementById('climate-ldr').innerText = `${ldrVal.toFixed(1)}%`;
+                const pirEl = document.getElementById('climate-pir');
+                const pirIcon = document.getElementById('pir-icon');
+                if (pirEl && pirIcon) {
+                    if (pirVal === 1) {
+                        pirEl.innerText = 'Motion Detected';
+                        pirEl.style.color = '#c084fc';
+                        pirIcon.innerHTML = '<i class="fa-solid fa-person-walking"></i>';
+                    } else {
+                        pirEl.innerText = 'No Motion';
+                        pirEl.style.color = 'var(--text-secondary)';
+                        pirIcon.innerHTML = '<i class="fa-solid fa-person-rays"></i>';
+                    }
+                }
+
+                // Update AI Efficiency Diagnostics Card
+                const aiCard = document.getElementById('ai-diagnostics-card');
+                const aiList = document.getElementById('ai-diagnostics-list');
+                if (aiCard && aiList) {
+                    if (data.ai_recommendations && data.ai_recommendations.length > 0) {
+                        aiCard.style.display = 'block';
+                        aiList.innerHTML = data.ai_recommendations.map(rec => {
+                            let icon = 'fa-circle-info';
+                            let severityClass = rec.severity.toLowerCase();
+                            if (rec.severity === 'WARNING') icon = 'fa-triangle-exclamation';
+                            else if (rec.severity === 'CAUTION') icon = 'fa-circle-exclamation';
+                            
+                            return `
+                                <div class="ai-recommendation-item ${severityClass}">
+                                    <div class="ai-recommendation-icon"><i class="fa-solid ${icon}"></i></div>
+                                    <div class="ai-recommendation-text">
+                                        <strong>${rec.rule}</strong>
+                                        <p>${rec.message} <i style="color:var(--text-white); margin-left: 6px;">Recommendation: ${rec.recommendation}</i></p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        aiCard.style.display = 'none';
+                        aiList.innerHTML = '';
+                    }
+                }
+
+                // Always fetch AI predictions in background for dashboard widgets & AI tab
+                fetchAiPredictions(data.total_power);
+
+                // Update views
+                if (currentTab === 'dashboard') {
+                    updateDashboardGrid(data);
+                    fetchSolarForecast();
+                } else if (currentTab === 'control') {
+                    updateControlGrid(data);
+                } else if (currentTab === 'analytics') {
+                    fetchMetricsData();
+                    fetchHistory();
+                } else if (currentTab === 'logs') {
+                    fetchLogs();
+                } else if (currentTab === 'ai-forecast') {
+                    triggerAiInference();
+                } else if (currentTab === 'csi-sensing') {
+                    fetchCSIStatus();
+                }
+
+            } catch (e) {
+                badge.classList.remove('online');
+                badge.classList.add('offline');
+                badgeText.innerText = "GATEWAY OFFLINE";
+                brokerStatusEl.innerText = "Disconnected";
+                brokerStatusEl.style.color = "var(--rose)";
+                dbPathEl.innerText = "Unavailable";
+                console.error("Gateway offline check:", e);
+            }
+        }
+
+        // Toggle auto-shedding setting via API
+        async function toggleAutoShedding(checkboxEl) {
+            const apiBase = getApiUrl();
+            try {
+                const res = await fetch(`${apiBase}/api/control/shedding`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled: checkboxEl.checked })
+                });
+                if (!res.ok) throw new Error("Auto-shedding toggle failed");
+            } catch (e) {
+                console.error(e);
+                checkboxEl.checked = !checkboxEl.checked;
+            }
+        }
+
+        // Fetch and update solar forecast
+        async function fetchSolarForecast() {
+            const apiBase = getApiUrl();
+            try {
+                const res = await fetch(`${apiBase}/api/solar/forecast`);
+                if (!res.ok) throw new Error("Solar forecast fetch error");
+                const data = await res.json();
+                
+                const f = data.forecast;
+                document.getElementById('solar-f1').innerText = `${f[0].toFixed(1)} W`;
+                document.getElementById('solar-f2').innerText = `${f[1].toFixed(1)} W`;
+                document.getElementById('solar-f3').innerText = `${f[2].toFixed(1)} W`;
+                
+                // Update chart
+                if (solarChartInstance) {
+                    solarChartInstance.updateSeries([{
+                        name: 'Forecasted Output (W)',
+                        data: [
+                            { x: '1 Hour Ahead', y: f[0] },
+                            { x: '2 Hours Ahead', y: f[1] },
+                            { x: '3 Hours Ahead', y: f[2] }
+                        ]
+                    }]);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Initialize ApexCharts for Solar Forecasting
+        function initSolarChart() {
+            const options = {
+                series: [{
+                    name: 'Forecasted Output (W)',
+                    data: []
+                }],
+                chart: {
+                    type: 'line',
+                    height: 220,
+                    background: 'transparent',
+                    foreColor: '#64748b',
+                    toolbar: { show: false }
+                },
+                colors: ['#10b981'],
+                stroke: { curve: 'smooth', width: 3 },
+                markers: { size: 5, colors: ['#10b981'] },
+                grid: {
+                    borderColor: 'rgba(255,255,255,0.02)',
+                    strokeDashArray: 3
+                },
+                yaxis: {
+                    labels: {
+                        formatter: function (value) {
+                            return Math.round(value) + " W";
+                        }
+                    }
+                },
+                tooltip: { theme: 'dark' }
+            };
+            const chartEl = document.getElementById('solar-forecast-chart');
+            if (chartEl) {
+                solarChartInstance = new ApexCharts(chartEl, options);
+                solarChartInstance.render();
+            }
+        }
+
+        // Initialize ApexCharts for AI 1-Hour Horizon Forecaster
+        function initAiForecastChart() {
+            const chartEl = document.getElementById("ai-forecast-chart");
+            if (!chartEl) return;
+            const options = {
+                series: [{
+                    name: 'Projected Load (W)',
+                    data: []
+                }],
+                chart: {
+                    type: 'area',
+                    height: 280,
+                    background: 'transparent',
+                    foreColor: '#94a3b8',
+                    toolbar: { show: false },
+                    animations: { enabled: true, easing: 'easeinout', speed: 800 }
+                },
+                colors: ['#8b5cf6'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.65,
+                        opacityTo: 0.05,
+                        stops: [0, 90, 100]
+                    }
+                },
+                dataLabels: { enabled: false },
+                stroke: { curve: 'smooth', width: 3 },
+                xaxis: {
+                    categories: ['+15 min', '+30 min', '+45 min', '+60 min'],
+                    axisBorder: { show: false },
+                    axisTicks: { show: false },
+                    labels: { style: { colors: '#94a3b8', fontFamily: 'JetBrains Mono, monospace' } }
+                },
+                yaxis: {
+                    labels: { 
+                        formatter: val => `${Math.round(val)} W`,
+                        style: { colors: '#94a3b8', fontFamily: 'JetBrains Mono, monospace' }
+                    },
+                    grid: { borderColor: 'rgba(255,255,255,0.05)' }
+                },
+                grid: { borderColor: 'rgba(255,255,255,0.06)' },
+                tooltip: {
+                    theme: 'dark',
+                    y: { formatter: val => `${val.toFixed(1)} Watts` }
+                }
+            };
+            aiForecastChartInstance = new ApexCharts(chartEl, options);
+            aiForecastChartInstance.render();
+        }
+
+        function toggleAiSimulation(enabled) {
+            isAiSimulated = enabled;
+            const wrap = document.getElementById('ai-slider-wrap');
+            if (wrap) {
+                wrap.style.opacity = enabled ? '1' : '0.4';
+                wrap.style.pointerEvents = enabled ? 'auto' : 'none';
+            }
+            triggerAiInference();
+        }
+
+        function onAiSliderChange(val) {
+            aiSimulatedWatts = parseFloat(val);
+            const textEl = document.getElementById('ai-slider-val-text');
+            if (textEl) textEl.innerText = `${aiSimulatedWatts} W`;
+            triggerAiInference();
+        }
+
+        async function triggerAiInference() {
+            let inputWatts = aiSimulatedWatts;
+            if (!isAiSimulated) {
+                const totalEl = document.getElementById('total-power');
+                if (totalEl && totalEl.innerText) {
+                    const parsed = parseFloat(totalEl.innerText.replace(' W', ''));
+                    if (!isNaN(parsed) && parsed > 0) inputWatts = parsed;
+                }
+            }
+            await fetchAiPredictions(inputWatts);
+        }
+
+        async function fetchAiPredictions(currentWatts) {
+            const apiBase = getApiUrl();
+            try {
+                // 1. Fetch Load Forecast (GRU Model 1)
+                const loadRes = await fetch(`${apiBase}/api/v1/predict/load`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ current_load: currentWatts })
+                });
+                if (loadRes.ok) {
+                    const loadData = await loadRes.json();
+                    if (aiForecastChartInstance && loadData.forecasted_power_watts) {
+                        const times = loadData.forecasted_timestamps ? loadData.forecasted_timestamps.map(t => {
+                            const pts = t.split(' ');
+                            return pts.length > 1 ? pts[1].slice(0, 5) : t;
+                        }) : ['+15m', '+30m', '+45m', '+60m'];
+                        aiForecastChartInstance.updateOptions({ xaxis: { categories: times } });
+                        aiForecastChartInstance.updateSeries([{
+                            name: 'Projected Load (W)',
+                            data: loadData.forecasted_power_watts
+                        }]);
+                    }
+                }
+
+                // 2. Fetch Decision & Attribution (ONNX Model 2)
+                const decRes = await fetch(`${apiBase}/api/v1/predict/decision`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ current_load: currentWatts })
+                });
+                if (decRes.ok) {
+                    const decData = await decRes.json();
+                    const severity = decData.classification || 'NORMAL';
+                    const topApp = decData.top_attributed_appliance || 'None';
+                    const scorePct = Math.round((decData.anomaly_score || 0) * 100);
+
+                    // Update Dashboard Summary Widget
+                    const dashSev = document.getElementById('dash-ai-severity');
+                    const dashTop = document.getElementById('dash-ai-top-app');
+                    const dashScore = document.getElementById('dash-ai-score');
+                    if (dashSev) {
+                        dashSev.innerText = severity;
+                        dashSev.style.color = severity === 'HIGH' ? '#ef4444' : (severity === 'WARNING' ? '#f59e0b' : '#34d399');
+                    }
+                    if (dashTop) dashTop.innerText = topApp;
+                    if (dashScore) {
+                        dashScore.innerText = `${scorePct}%`;
+                        dashScore.style.color = scorePct > 70 ? '#ef4444' : (scorePct > 40 ? '#f59e0b' : '#38bdf8');
+                    }
+
+                    // Update AI Tab Severity Card
+                    const sevVal = document.getElementById('ai-kpi-severity-val');
+                    const sevCard = document.getElementById('ai-kpi-severity-card');
+                    const sevSub = document.getElementById('ai-kpi-severity-sub');
+                    if (sevVal) {
+                        sevVal.innerText = severity;
+                        if (sevCard) sevCard.className = `ai-kpi-card severity-${severity.toLowerCase()}`;
+                        if (severity === 'HIGH') {
+                            sevVal.style.color = '#ef4444';
+                            if (sevSub) sevSub.innerText = '⚠️ CRITICAL: Exceeded safe capacity threshold';
+                        } else if (severity === 'WARNING' || (severity === 'NORMAL' && currentWatts > 300)) {
+                            sevVal.style.color = '#f59e0b';
+                            if (sevSub) sevSub.innerText = '⚡ Caution: Approaching peak grid capacity';
+                        } else {
+                            sevVal.style.color = '#34d399';
+                            if (sevSub) sevSub.innerText = 'Optimal grid capacity within safety margins';
+                        }
+                    }
+
+                    // Update AI Tab Anomaly Score Card
+                    const anomVal = document.getElementById('ai-kpi-anomaly-val');
+                    if (anomVal) {
+                        anomVal.innerText = `${scorePct}%`;
+                        anomVal.style.color = scorePct > 70 ? '#ef4444' : (scorePct > 40 ? '#f59e0b' : '#38bdf8');
+                    }
+
+                    // Update AI Tab Top Attributed Card
+                    const topVal = document.getElementById('ai-kpi-top-val');
+                    if (topVal) topVal.innerText = topApp;
+
+                    // Update Strategic Advisory Box
+                    const recEl = document.getElementById('ai-strategic-rec');
+                    if (recEl) {
+                        recEl.innerText = decData.recommendation || 'Optimal consumption pattern. Keep appliances running normally.';
+                    }
+
+                    // Update Appliance Attribution List
+                    const attrList = document.getElementById('ai-attribution-list');
+                    if (attrList) {
+                        const hoursMap = decData.appliance_hours || {
+                            'Refrigerator': 20.0, 'AirConditioner': 12.5, 'Fan': 15.0, 'Television': 8.0
+                        };
+                        const iconMap = {
+                            'Refrigerator': 'fa-snowflake', 'Fridge': 'fa-snowflake',
+                            'AirConditioner': 'fa-wind', 'AC': 'fa-wind',
+                            'Fan': 'fa-fan',
+                            'Television': 'fa-tv', 'TV': 'fa-tv',
+                            'Monitor': 'fa-desktop',
+                            'MotorPump': 'fa-water', 'Light': 'fa-lightbulb'
+                        };
+                        attrList.innerHTML = Object.entries(hoursMap).map(([app, hrs]) => {
+                            const pct = Math.min(100, Math.max(0, (hrs / 24.0) * 100)).toFixed(0);
+                            const icon = iconMap[app] || 'fa-plug';
+                            return `
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: var(--text-white); font-weight: 600;">
+                                        <span style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="fa-solid ${icon}" style="color: #a855f7; width: 16px;"></i> ${app}
+                                        </span>
+                                        <span>${Number(hrs).toFixed(1)} hrs/day <small style="color: var(--text-muted); font-weight: 400;">(${pct}%)</small></span>
+                                    </div>
+                                    <div class="ai-attribution-bar-bg">
+                                        <div class="ai-attribution-bar-fill" style="width: ${pct}%;"></div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+
+                    // Update Optimization Pills
+                    const optMap = decData.optimization_flags || {
+                        'LoadShedding': severity === 'HIGH',
+                        'SmartScheduling': true,
+                        'HighPowerWarning': severity === 'HIGH' || scorePct > 60
+                    };
+                    const sheddingEl = document.getElementById('opt-flag-shedding');
+                    const schedEl = document.getElementById('opt-flag-scheduling');
+                    const warnEl = document.getElementById('opt-flag-warning');
+                    if (sheddingEl) sheddingEl.className = `ai-opt-pill ${optMap.LoadShedding ? 'active' : 'inactive'}`;
+                    if (schedEl) schedEl.className = `ai-opt-pill ${optMap.SmartScheduling ? 'active' : 'inactive'}`;
+                    if (warnEl) warnEl.className = `ai-opt-pill ${optMap.HighPowerWarning ? 'active' : 'inactive'}`;
+                }
+            } catch (e) {
+                console.error("AI Predictions Fetch Error:", e);
+            }
+        }
+
+        // Render Appliance Grid Cards for Dashboard view
+        function updateDashboardGrid(data) {
+            const container = document.getElementById('dashboard-appliances');
+            const limits = { 'TV': 150, 'Light': 50, 'Fan': 100, 'Refrigerator': 250 };
+            
+            // Map appliance names to beautiful fontawesome icons
+            const iconMap = {
+                'TV': 'fa-tv',
+                'Light': 'fa-lightbulb',
+                'Fan': 'fa-fan',
+                'Refrigerator': 'fa-snowflake'
+            };
+
+            container.innerHTML = data.appliances.map(app => {
+                const tel = data.latest_telemetry[app.name];
+                const power = tel ? tel.power : 0.0;
+                const current = tel ? tel.current : 0.0;
+                const activeClass = app.status === 1 ? 'active' : '';
+                
+                // Anomaly evaluation
+                const anomalyDesc = data.anomaly_status && data.anomaly_status[app.name];
+                const badgeText = anomalyDesc ? `⚠️ Anomaly` : (app.status === 1 ? 'Active' : 'Standby');
+                const badgeClass = anomalyDesc ? 'anomaly' : (app.status === 1 ? 'active' : 'neutral');
+                const anomalyCardClass = anomalyDesc ? 'anomaly-state' : '';
+                
+                const iconClass = iconMap[app.name] || 'fa-plug';
+                
+                // Calculate percentage relative to limit
+                const limit = limits[app.name] || 200;
+                const percentage = Math.min((power / limit) * 100, 100);
+                
+                let barColor = 'var(--emerald)';
+                if (anomalyDesc) barColor = 'var(--rose)';
+                else if (app.status !== 1) barColor = 'rgba(255,255,255,0.05)';
+                
+                return `
+                    <div class="glass-card appliance-card ${activeClass} ${anomalyCardClass}" id="card-${app.name}">
+                        <div class="card-top">
+                            <div class="appliance-title">
+                                <div class="appliance-icon-wrapper">
+                                    <i class="fa-solid ${iconClass}"></i>
+                                </div>
+                                <div class="appliance-meta-text">
+                                    <span class="appliance-name">${app.name}</span>
+                                    <span class="appliance-pin">GPIO Pin ${app.relay_pin}</span>
+                                </div>
+                            </div>
+                            <span class="status-chip ${badgeClass}">${badgeText}</span>
+                        </div>
+                        <div class="card-power-info" style="margin-top: 10px;">
+                            <div class="card-power-w">${power.toFixed(1)} W</div>
+                            <div class="card-power-a">${current.toFixed(2)} Amps</div>
+                        </div>
+                        <div class="appliance-progress-track" style="height: 4px; background: rgba(255,255,255,0.03); border-radius: 4px; overflow: hidden; margin-top: 14px; border: 1px solid rgba(255,255,255,0.01);">
+                            <div class="appliance-progress-fill" style="height: 100%; width: ${percentage}%; background: ${barColor}; transition: width 0.6s ease; border-radius: 4px;"></div>
+                        </div>
+                        ${anomalyDesc ? `<div style="font-size: 11.5px; color: var(--rose); margin-top: 8px; font-weight: 600;"><i class="fa-solid fa-triangle-exclamation"></i> ${anomalyDesc}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Appliance Toggles for Control view
+        function updateControlGrid(data) {
+            const container = document.getElementById('control-switches');
+            container.innerHTML = data.appliances.map(app => {
+                const activeClass = app.status === 1 ? 'active' : '';
+                const checkedAttr = app.status === 1 ? 'checked' : '';
+                
+                return `
+                    <div class="glass-card appliance-card ${activeClass}" id="card-${app.name}" style="padding: 20px;">
+                        <div class="card-top">
+                            <div class="appliance-title">
+                                <span class="appliance-name">${app.name}</span>
+                                <span class="appliance-pin">GPIO Pin ${app.relay_pin}</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="switch-${app.name}" ${checkedAttr} onchange="toggleRelay('${app.name}', this)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Helper string escape
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // WiFi CSI Zonal Auto-Scan & Walk Simulation Functions
+        async function triggerCSIAutoScan() {
+            const btn = document.getElementById('csi-autoscan-btn');
+            const statusText = document.getElementById('csi-status-text');
+            const badge = document.getElementById('csi-calibration-badge');
+            
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Ranging Nodes... 3s`;
+            }
+            
+            try {
+                const apiBase = getApiBase();
+                const res = await fetch(`${apiBase}/api/csi/auto-scan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ table_length: 3.2, num_zones: 4 })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (statusText) statusText.innerText = 'AUTO-CALIBRATED & ACTIVE';
+                    if (badge) badge.className = 'status-badge online';
+                    
+                    alert('✅ WiFi CSI Auto-Calibration Complete!\n\n4 Zonal Relays (Bulb 1, Bulb 2, Bulb 3, Bulb 4) automatically mapped and armed.');
+                    fetchCSIStatus();
+                } else {
+                    alert('Auto-Scan request sent to gateway.');
+                }
+            } catch (err) {
+                console.error("CSI Auto-Scan Error:", err);
+                alert("Auto-Scan request sent to gateway.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> 🛰️ Auto-Scan & Map Lab`;
+                }
+            }
+        }
+
+        async function simulateWalk(posX) {
+            try {
+                const apiBase = getApiBase();
+                const res = await fetch(`${apiBase}/api/csi/simulate-presence`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ position_x: posX })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    updateCSIGrid(data.csi_state);
+                    fetchData(); // refresh main relay cards
+                }
+            } catch (err) {
+                console.error("Simulate Walk Error:", err);
+            }
+        }
+
+        async function fetchCSIStatus() {
+            try {
+                const apiBase = getApiBase();
+                const res = await fetch(`${apiBase}/api/csi/status`);
+                if (res.ok) {
+                    const data = await res.json();
+                    updateCSIGrid(data.csi_state);
+                }
+            } catch (err) {
+                console.error("Fetch CSI Status Error:", err);
+            }
+        }
+
+        function drawHeatmap(activeZone, posX) {
+            const canvas = document.getElementById('csi-heatmap-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Clear & fill deep RF background
+            ctx.fillStyle = '#070a11';
+            ctx.fillRect(0, 0, w, h);
+
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+
+            // Draw 4 Workstation Zones (Bulb 1..4)
+            const zoneWidth = w / 4;
+            for (let i = 0; i < 4; i++) {
+                const zX = i * zoneWidth;
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.25)';
+                ctx.setLineDash([4, 4]);
+                ctx.strokeRect(zX + 10, 15, zoneWidth - 20, h - 30);
+                ctx.setLineDash([]);
+
+                // Draw bulb icon label
+                ctx.fillStyle = '#64748b';
+                ctx.font = '700 12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Bulb ${i+1} Zone`, zX + zoneWidth / 2, 35);
+            }
+
+            // If human presence detected at an active zone, render glowing thermal heatmap blob!
+            if (activeZone && activeZone >= 1 && activeZone <= 4) {
+                const targetX = (activeZone - 0.5) * zoneWidth;
+                const targetY = h / 2 + 10;
+
+                // Create Multi-Ring Thermal Gradient
+                const grad = ctx.createRadialGradient(targetX, targetY, 4, targetX, targetY, 75);
+                grad.addColorStop(0.0, 'rgba(239, 68, 68, 0.95)');   // Red core
+                grad.addColorStop(0.3, 'rgba(245, 158, 11, 0.85)');  // Amber mid ring
+                grad.addColorStop(0.6, 'rgba(6, 182, 212, 0.45)');   // Cyan outer aura
+                grad.addColorStop(1.0, 'rgba(6, 182, 212, 0.00)');   // Fade
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(targetX, targetY, 75, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw human presence indicator marker
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(targetX, targetY, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#c084fc';
+                ctx.font = '700 11px JetBrains Mono';
+                ctx.textAlign = 'center';
+                ctx.fillText('HUMAN PRESENCE DETECTED', targetX, targetY - 16);
+            } else {
+                ctx.fillStyle = '#475569';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('Awaiting Human Presence / CSI Phase Disturbance...', w / 2, h / 2 + 5);
+            }
+        }
+
+        function updateCSIGrid(csiState) {
+            if (!csiState) return;
+            
+            const statusText = document.getElementById('csi-status-text');
+            const badge = document.getElementById('csi-calibration-badge');
+            const posLabel = document.getElementById('csi-live-pos-label');
+            
+            if (badge && statusText) {
+                if (csiState.calibrated) {
+                    badge.style.background = 'rgba(16, 185, 129, 0.08)';
+                    badge.style.border = '1px solid rgba(16, 185, 129, 0.2)';
+                    badge.style.color = 'var(--emerald)';
+                    statusText.innerText = 'SYSTEM CALIBRATED & LISTENING';
+                } else {
+                    badge.style.background = 'rgba(245, 158, 11, 0.08)';
+                    badge.style.border = '1px solid rgba(245, 158, 11, 0.2)';
+                    badge.style.color = 'var(--amber)';
+                    statusText.innerText = 'UNCALIBRATED - TAP AUTO-SCAN';
+                }
+            }
+            
+            if (posLabel) {
+                if (csiState.user_position_x !== null && csiState.user_position_x !== undefined) {
+                    posLabel.innerText = `Human Position: X = ${Number(csiState.user_position_x).toFixed(2)}m (Zone ${csiState.active_zone || 'None'})`;
+                    posLabel.style.color = 'var(--accent-color)';
+                } else {
+                    posLabel.innerText = csiState.calibrated ? 'Human Position: Awaiting ESP32 Presence Detection...' : 'Human Position: Awaiting Auto-Scan Calibration...';
+                    posLabel.style.color = 'var(--text-secondary)';
+                }
+            }
+            
+            // Draw RF Thermal Heatmap Canvas
+            drawHeatmap(csiState.active_zone, csiState.user_position_x);
+            
+            for (let i = 1; i <= 4; i++) {
+                const card = document.getElementById(`csi-zone-card-${i}`);
+                const badgeEl = document.getElementById(`csi-badge-${i}`);
+                const icon = card ? card.querySelector('.fa-lightbulb') : null;
+                
+                const isActive = (csiState.active_zone === i);
+                
+                if (card) {
+                    if (isActive) {
+                        card.style.border = '1px solid var(--emerald)';
+                        card.style.background = 'rgba(16, 185, 129, 0.12)';
+                        card.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.2)';
+                    } else {
+                        card.style.border = '1px solid var(--card-border)';
+                        card.style.background = 'rgba(0, 0, 0, 0.2)';
+                        card.style.boxShadow = 'none';
+                    }
+                }
+                
+                if (badgeEl) {
+                    badgeEl.className = isActive ? 'status-chip active' : 'status-chip inactive';
+                    badgeEl.innerText = isActive ? 'ACTIVE (ON)' : 'VACANT (OFF)';
+                }
+                
+                if (icon) {
+                    icon.style.color = isActive ? 'var(--emerald)' : 'var(--text-secondary)';
+                    icon.style.filter = isActive ? 'drop-shadow(0 0 10px var(--emerald))' : 'none';
+                }
+            }
+        }
+
+        // Initialization
+        window.addEventListener('load', () => {
+            initChart();
+            initSolarChart();
+            initAiForecastChart();
+            switchTab('dashboard');
+            fetchCSIStatus();
+            
+            // Loop polling
+            setInterval(() => {
+                fetchData();
+                fetchCSIStatus();
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
+

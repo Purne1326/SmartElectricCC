@@ -1,0 +1,20 @@
+[Unit]
+Description=SmartElectric FastAPI REST Backend Service
+After=network.target smartelectric-worker.service
+Wants=smartelectric-worker.service
+
+[Service]
+Type=simple
+User=jetson
+WorkingDirectory=/home/jetson/smartelectric/edge/backend
+Environment=PYTHONUNBUFFERED=1
+# Executing uvicorn from absolute path or using python module execution
+ExecStart=/home/jetson/smartelectric/edge/backend/.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=smartelectric-api
+
+[Install]
+WantedBy=multi-user.target

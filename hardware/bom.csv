@@ -1,0 +1,16 @@
+Component,Quantity,Specification,Purpose,Approximate Cost (INR)
+ESP32 DevKit,1,ESP32-WROOM-32,Main microcontroller,500
+SCT-013 Current Sensor,4,SCT-013-030 (30A/1V),Per-appliance current measurement,1600
+4-Channel Relay Module,1,5V 10A per channel,Appliance control,200
+DHT22 Sensor,1,Temperature/Humidity,Environmental monitoring,250
+PIR Motion Sensor,1,HC-SR501,Motion detection,100
+Resistors,8,10k Ohm (1/4W),Voltage divider for SCT-013,10
+Capacitors,4,10uF electrolytic,SCT-013 filtering,20
+3.5mm Audio Jacks,4,Female panel mount,SCT-013 connection,50
+Breadboard,1,830 points,Prototyping,150
+Jumper Wires,1 set,Male-male & male-female,Connections,100
+Power Supply (ESP32),1,5V 2A micro USB,ESP32 power,150
+Jetson Nano Developer Kit,1,4GB RAM + microSD,Edge computing hub,10000
+microSD Card,1,64GB Class 10,Jetson storage,600
+Power Supply (Jetson),1,5V 4A barrel jack,Jetson power,500
+TOTAL,,,,14230

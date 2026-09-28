@@ -1,0 +1,59 @@
+# Android-specific
+.gradle/
+local.properties
+**/build/
+.idea/
+*.iml
+*.hprof
+.cxx/
+
+# Python-specific
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+venv/
+
+# IDE / Editor-specific
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS-specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Environment & Secret files
+.env
+*.env
+
+# DB / Temp files
+sync_checkpoint.json
+*.db
+*.db-journal
