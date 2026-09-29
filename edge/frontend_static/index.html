@@ -1754,42 +1754,40 @@
                             <span id="csi-live-pos-label" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-secondary); font-weight: 700;">
                                 Human Position: Awaiting ESP32 CSI Scan...
                             </span>
-                        </div>
-
-                        <!-- 4 Zonal Relays Visual Representation -->
+                                 <!-- 4 Zonal Relays Visual Representation -->
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; position: relative;" id="csi-zones-container">
                             <!-- Zone 1 -->
                             <div id="csi-zone-card-1" class="glass-card csi-zone-card" style="border: 1px solid var(--card-border); text-align: center; padding: 24px 14px; transition: all 0.3s ease;">
                                 <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i></div>
-                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 1</div>
-                                <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">0.0m - 0.8m</div>
+                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 1 <span style="font-size: 12px; color: var(--accent-color); display: block; font-weight: 600; margin-top: 2px;">(Light)</span></div>
+                                <div style="font-size: 11px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">0.0m - 0.8m</div>
                                 <div id="csi-badge-1" class="status-chip inactive" style="margin-top: 12px; display: inline-block;">VACANT (OFF)</div>
                             </div>
 
                             <!-- Zone 2 -->
                             <div id="csi-zone-card-2" class="glass-card csi-zone-card" style="border: 1px solid var(--card-border); text-align: center; padding: 24px 14px; transition: all 0.3s ease;">
-                                <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i></div>
-                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 2</div>
-                                <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">0.8m - 1.6m</div>
+                                <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-fan"></i></div>
+                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 2 <span style="font-size: 12px; color: var(--accent-color); display: block; font-weight: 600; margin-top: 2px;">(Fan)</span></div>
+                                <div style="font-size: 11px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">0.8m - 1.6m</div>
                                 <div id="csi-badge-2" class="status-chip inactive" style="margin-top: 12px; display: inline-block;">VACANT (OFF)</div>
                             </div>
 
                             <!-- Zone 3 -->
                             <div id="csi-zone-card-3" class="glass-card csi-zone-card" style="border: 1px solid var(--card-border); text-align: center; padding: 24px 14px; transition: all 0.3s ease;">
-                                <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i></div>
-                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 3</div>
-                                <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">1.6m - 2.4m</div>
+                                <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-tv"></i></div>
+                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 3 <span style="font-size: 12px; color: var(--accent-color); display: block; font-weight: 600; margin-top: 2px;">(TV)</span></div>
+                                <div style="font-size: 11px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">1.6m - 2.4m</div>
                                 <div id="csi-badge-3" class="status-chip inactive" style="margin-top: 12px; display: inline-block;">VACANT (OFF)</div>
                             </div>
 
                             <!-- Zone 4 -->
                             <div id="csi-zone-card-4" class="glass-card csi-zone-card" style="border: 1px solid var(--card-border); text-align: center; padding: 24px 14px; transition: all 0.3s ease;">
-                                <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i></div>
-                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 4</div>
-                                <div style="font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">2.4m - 3.2m</div>
+                                <div style="font-size: 32px; color: var(--text-secondary); margin-bottom: 10px;"><i class="fa-solid fa-snowflake"></i></div>
+                                <div style="font-weight: 700; color: var(--text-white); font-size: 16px;">Bulb 4 <span style="font-size: 12px; color: var(--accent-color); display: block; font-weight: 600; margin-top: 2px;">(Fridge)</span></div>
+                                <div style="font-size: 11px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-top: 6px;">2.4m - 3.2m</div>
                                 <div id="csi-badge-4" class="status-chip inactive" style="margin-top: 12px; display: inline-block;">VACANT (OFF)</div>
                             </div>
-                        </div>
+                        </div>                   </div>
                     </div>
                 </div>
             </div>

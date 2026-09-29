@@ -702,7 +702,7 @@ class CSIScanRequest(BaseModel):
 class CSIPresenceSimulateRequest(BaseModel):
     position_x: float  # Human position along table in meters (0.0 to 3.2m)
 
-# In-memory CSI Zonal Tracking State (Clean real-time state)
+# In-memory CSI Zonal Tracking State (Mapped directly to SmartElectric Database Appliances)
 csi_tracking_state = {
     "calibrated": False,
     "last_scanned": None,
@@ -715,10 +715,10 @@ csi_tracking_state = {
         {"id": "node_2", "rssi": -42, "status": "ONLINE", "location": "Table End (3.2m)"}
     ],
     "zones": [
-        {"id": 1, "name": "Zone 1 (Bulb 1)", "range": [0.0, 0.8], "appliance": "Light 1", "active": False},
-        {"id": 2, "name": "Zone 2 (Bulb 2)", "range": [0.8, 1.6], "appliance": "Light 2", "active": False},
-        {"id": 3, "name": "Zone 3 (Bulb 3)", "range": [1.6, 2.4], "appliance": "Light 3", "active": False},
-        {"id": 4, "name": "Zone 4 (Bulb 4)", "range": [2.4, 3.2], "appliance": "Light 4", "active": False}
+        {"id": 1, "name": "Zone 1 (Bulb 1)", "range": [0.0, 0.8], "appliance": "Light", "active": False},
+        {"id": 2, "name": "Zone 2 (Bulb 2)", "range": [0.8, 1.6], "appliance": "Fan", "active": False},
+        {"id": 3, "name": "Zone 3 (Bulb 3)", "range": [1.6, 2.4], "appliance": "TV", "active": False},
+        {"id": 4, "name": "Zone 4 (Bulb 4)", "range": [2.4, 3.2], "appliance": "Fridge", "active": False}
     ]
 }
 
@@ -737,16 +737,18 @@ def trigger_csi_auto_scan(req: CSIScanRequest):
         except Exception:
             pass
         
+        app_names = ["Light", "Fan", "TV", "Fridge"]
         zones = []
         for i in range(num_zones):
             z_id = i + 1
             z_start = round(i * zone_width, 2)
             z_end = round((i + 1) * zone_width, 2)
+            app_name = app_names[i % len(app_names)]
             zones.append({
                 "id": z_id,
                 "name": f"Zone {z_id} (Bulb {z_id})",
                 "range": [z_start, z_end],
-                "appliance": f"Light {z_id}",
+                "appliance": app_name,
                 "active": False
             })
             
@@ -762,7 +764,7 @@ def trigger_csi_auto_scan(req: CSIScanRequest):
         
         return {
             "status": "success",
-            "message": f"Auto-calibration complete! {num_zones} zonal relays automatically registered across {length}m table.",
+            "message": f"Auto-calibration complete! 4 Zonal Relays mapped to Smart Appliances (Light, Fan, TV, Fridge) across {length}m table.",
             "csi_state": csi_tracking_state
         }
     except Exception as e:
