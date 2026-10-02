@@ -1740,8 +1740,15 @@
                                 📡 2.4GHz RF Doppler Energy Map
                             </span>
                         </div>
-                        <div style="width: 100%; display: flex; justify-content: center; background: #070a11; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); padding: 10px;">
+                        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; background: #070a11; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); padding: 10px; gap: 10px;">
                             <canvas id="csi-heatmap-canvas" width="800" height="180" style="width: 100%; max-width: 800px; height: 180px; border-radius: 8px;"></canvas>
+                            <div style="width: 100%; max-width: 800px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin-bottom: 4px;">
+                                    <span><i class="fa-solid fa-chart-simple" style="color: var(--accent-color);"></i> 64 OFDM SUBCARRIER CHANNEL FREQUENCY RESPONSE (|H(F)| AMPLITUDE & PHASE SHIFT)</span>
+                                    <span>-32 ... 0 ... +31 Subcarriers (100 Hz Continuous)</span>
+                                </div>
+                                <canvas id="csi-ofdm-canvas" width="800" height="60" style="width: 100%; max-width: 800px; height: 60px; border-radius: 4px;"></canvas>
+                            </div>
                         </div>
                     </div>
 
@@ -2857,6 +2864,40 @@
                 ctx.font = '600 12px Inter';
                 ctx.textAlign = 'center';
                 ctx.fillText('🟢 ROOM VACANT - No Human Movement Detected', w / 2, h / 2 + 5);
+            }
+
+            drawOFDMSpectrum(activeZone);
+        }
+
+        function drawOFDMSpectrum(activeZone) {
+            const canvas = document.getElementById('csi-ofdm-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.fillStyle = '#070a11';
+            ctx.fillRect(0, 0, w, h);
+
+            const numBars = 64;
+            const barWidth = (w - (numBars * 2)) / numBars;
+
+            for (let i = 0; i < numBars; i++) {
+                const x = i * (barWidth + 2);
+                let barHeight = 15 + Math.sin(i * 0.15) * 8 + (Math.random() * 4);
+                
+                // If presence active, introduce phase/amplitude distortion
+                if (activeZone) {
+                    const shiftIdx = (activeZone - 1) * 16;
+                    if (i >= shiftIdx && i < shiftIdx + 16) {
+                        barHeight += Math.sin((i - shiftIdx) * 0.3) * 22 + (Math.random() * 8);
+                    }
+                }
+
+                barHeight = Math.min(h - 5, Math.max(5, barHeight));
+
+                ctx.fillStyle = (activeZone && i >= (activeZone - 1) * 16 && i < activeZone * 16) ? '#ef4444' : '#3b82f6';
+                ctx.fillRect(x, h - barHeight, barWidth, barHeight);
             }
         }
 
