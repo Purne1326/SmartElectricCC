@@ -2792,21 +2792,42 @@
             const zoneWidth = w / 4;
             for (let i = 0; i < 4; i++) {
                 const zX = i * zoneWidth;
-                ctx.strokeStyle = 'rgba(59, 130, 246, 0.25)';
+                const isThisZoneActive = (activeZone === (i + 1));
+                
+                ctx.strokeStyle = isThisZoneActive ? 'rgba(16, 185, 129, 0.6)' : 'rgba(59, 130, 246, 0.25)';
+                ctx.lineWidth = isThisZoneActive ? 2 : 1;
                 ctx.setLineDash([4, 4]);
                 ctx.strokeRect(zX + 10, 15, zoneWidth - 20, h - 30);
                 ctx.setLineDash([]);
 
                 // Draw bulb icon label
-                ctx.fillStyle = '#64748b';
+                ctx.fillStyle = isThisZoneActive ? '#34d399' : '#64748b';
                 ctx.font = '700 12px Inter';
                 ctx.textAlign = 'center';
                 ctx.fillText(`Bulb ${i+1} Zone`, zX + zoneWidth / 2, 35);
             }
 
+            // Draw ESP32 Node markers at start and end
+            ctx.fillStyle = '#a855f7';
+            ctx.beginPath();
+            ctx.arc(20, h / 2 + 10, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = '600 10px JetBrains Mono';
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText('NODE 1 (0.0m)', 20, h / 2 - 5);
+
+            ctx.fillStyle = '#a855f7';
+            ctx.beginPath();
+            ctx.arc(w - 20, h / 2 + 10, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillText('NODE 2 (3.2m)', w - 20, h / 2 - 5);
+
             // If human presence detected at an active zone, render glowing thermal heatmap blob!
             if (activeZone && activeZone >= 1 && activeZone <= 4) {
-                const targetX = (activeZone - 0.5) * zoneWidth;
+                let targetX = (activeZone - 0.5) * zoneWidth;
+                if (posX !== null && posX !== undefined && posX >= 0) {
+                    targetX = (posX / 3.2) * w;
+                }
                 const targetY = h / 2 + 10;
 
                 // Create Multi-Ring Thermal Gradient
@@ -2830,12 +2851,12 @@
                 ctx.fillStyle = '#c084fc';
                 ctx.font = '700 11px JetBrains Mono';
                 ctx.textAlign = 'center';
-                ctx.fillText('HUMAN PRESENCE DETECTED', targetX, targetY - 16);
+                ctx.fillText(`HUMAN @ ${posX !== null && posX !== undefined ? posX.toFixed(2) : ''}m (Z${activeZone})`, targetX, targetY - 16);
             } else {
                 ctx.fillStyle = '#475569';
-                ctx.font = '12px Inter';
+                ctx.font = '600 12px Inter';
                 ctx.textAlign = 'center';
-                ctx.fillText('Awaiting Human Presence / CSI Phase Disturbance...', w / 2, h / 2 + 5);
+                ctx.fillText('🟢 ROOM VACANT - No Human Movement Detected', w / 2, h / 2 + 5);
             }
         }
 

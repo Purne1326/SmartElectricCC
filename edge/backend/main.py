@@ -764,7 +764,7 @@ def trigger_csi_auto_scan(req: CSIScanRequest):
         
         return {
             "status": "success",
-            "message": f"Auto-calibration complete! 4 Zonal Relays mapped to Smart Appliances (Light, Fan, TV, Fridge) across {length}m table.",
+            "message": f"Auto-calibration complete! 4 Zonal Relays mapped to Smart Appliances across {length}m table.",
             "csi_state": csi_tracking_state
         }
     except Exception as e:
@@ -779,57 +779,67 @@ def get_csi_status():
         "csi_state": csi_tracking_state
     }
 
-@app.post("/api/csi/simulate-presence")
-def simulate_csi_presence(req: CSIPresenceSimulateRequest):
-    """Simulates or processes human movement along the table, activating the corresponding zonal relay."""
+class CSIPresenceUpdate(BaseModel):
+    position_x: Optional[float] = None  # None or < 0 means vacant
+    active_zone: Optional[int] = None   # None or 0 means vacant
+
+@app.post("/api/csi/presence-event")
+def process_real_csi_presence(req: CSIPresenceUpdate):
+    """Processes real hardware ESP32 CSI presence events. If position_x/active_zone is None, room is VACANT."""
     global csi_tracking_state
     try:
-        pos_x = round(req.position_x, 2)
-        target_zone = 1
-        
-        for z in csi_tracking_state["zones"]:
-            r_start, r_end = z["range"]
-            if r_start <= pos_x <= r_end:
-                target_zone = z["id"]
-                break
-        else:
-            if pos_x > csi_tracking_state["table_length"]:
-                target_zone = csi_tracking_state["num_zones"]
-                
-        csi_tracking_state["user_position_x"] = pos_x
-        csi_tracking_state["active_zone"] = target_zone
-        
-        # Update zone active flags & trigger relay commands
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        for z in csi_tracking_state["zones"]:
-            is_active = (z["id"] == target_zone)
-            z["active"] = is_active
-            app_name = z["appliance"]
-            state_val = 1 if is_active else 0
+        pos_x = req.position_x
+        target_zone = req.active_zone
+        
+        if pos_x is not None and pos_x >= 0 and target_zone is None:
+            for z in csi_tracking_state["zones"]:
+                r_start, r_end = z["range"]
+                if r_start <= pos_x <= r_end:
+                    target_zone = z["id"]
+                    break
+        
+        # If vacant / no human detected
+        if pos_x is None or pos_x < 0 or target_zone is None or target_zone == 0:
+            csi_tracking_state["user_position_x"] = None
+            csi_tracking_state["active_zone"] = None
             
-            # Update DB state for the relay bulb
-            cursor.execute("""
-                UPDATE appliances 
-                SET status = ?, last_updated = ? 
-                WHERE name = ?
-            """, (state_val, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), app_name))
+            # Turn OFF all 4 zonal appliances
+            for z in csi_tracking_state["zones"]:
+                z["active"] = False
+                app_name = z["appliance"]
+                cursor.execute("UPDATE appliances SET status = 0, last_updated = ? WHERE name = ?", 
+                               (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), app_name))
+                try:
+                    publish_mqtt_command(app_name, 0)
+                except Exception:
+                    pass
+        else:
+            pos_x = round(pos_x, 2)
+            csi_tracking_state["user_position_x"] = pos_x
+            csi_tracking_state["active_zone"] = target_zone
             
-            # Send MQTT Command to physical ESP32 Relay
-            try:
-                publish_mqtt_command(app_name, state_val)
-            except Exception:
-                pass
+            for z in csi_tracking_state["zones"]:
+                is_active = (z["id"] == target_zone)
+                z["active"] = is_active
+                app_name = z["appliance"]
+                state_val = 1 if is_active else 0
                 
+                cursor.execute("UPDATE appliances SET status = ?, last_updated = ? WHERE name = ?", 
+                               (state_val, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), app_name))
+                try:
+                    publish_mqtt_command(app_name, state_val)
+                except Exception:
+                    pass
+
         conn.commit()
         conn.close()
         
         return {
             "status": "success",
-            "position_x": pos_x,
-            "active_zone": target_zone,
-            "active_appliance": f"Light {target_zone}",
+            "vacant": csi_tracking_state["active_zone"] is None,
             "csi_state": csi_tracking_state
         }
     except Exception as e:
