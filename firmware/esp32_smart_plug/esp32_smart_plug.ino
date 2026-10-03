@@ -9,6 +9,41 @@
 #include "sensors.h"
 #include "relays.h"
 
+// Safe Fallback Definitions (guarantees compilation in Arduino IDE single-file mode)
+#ifndef LIGHT_SCALE_FACTOR
+#define LIGHT_SCALE_FACTOR 1.0
+#endif
+#ifndef TV_SCALE_FACTOR
+#define TV_SCALE_FACTOR 1.0
+#endif
+#ifndef FRIDGE_SCALE_FACTOR
+#define FRIDGE_SCALE_FACTOR 2.2
+#endif
+#ifndef FAN_SCALE_FACTOR
+#define FAN_SCALE_FACTOR 1.0
+#endif
+
+#ifndef SENSOR_LIGHT_PIN
+#define SENSOR_LIGHT_PIN 32
+#endif
+#ifndef SENSOR_TV_PIN
+#define SENSOR_TV_PIN 33
+#endif
+#ifndef SENSOR_FRIDGE_PIN
+#define SENSOR_FRIDGE_PIN 34
+#endif
+#ifndef SENSOR_FAN_PIN
+#define SENSOR_FAN_PIN 35
+#endif
+#ifndef GRID_VOLTAGE
+#define GRID_VOLTAGE 230.0
+#endif
+
+// Inline weak sensor fallbacks
+__attribute__((weak)) int readPIR() { return 0; }
+__attribute__((weak)) float readLDR() { return 0.0f; }
+__attribute__((weak)) bool readBME280(float &t, float &h) { t = 25.0f; h = 60.0f; return true; }
+
 // Instantiate network clients
 #if USE_HIVEMQ_CLOUD
 WiFiClientSecure espClient;
