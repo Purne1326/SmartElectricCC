@@ -2731,7 +2731,7 @@
             
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Ranging Nodes... 3s`;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Ranging Nodes... 2s`;
             }
             
             try {
@@ -2744,17 +2744,16 @@
                 
                 if (res.ok) {
                     const data = await res.json();
-                    if (statusText) statusText.innerText = 'AUTO-CALIBRATED & ACTIVE';
-                    if (badge) badge.className = 'status-badge online';
-                    
-                    alert('✅ WiFi CSI Auto-Calibration Complete!\n\n4 Zonal Relays (Bulb 1, Bulb 2, Bulb 3, Bulb 4) automatically mapped and armed.');
-                    fetchCSIStatus();
-                } else {
-                    alert('Auto-Scan request sent to gateway.');
+                    if (statusText) statusText.innerText = 'SYSTEM CALIBRATED & LISTENING';
+                    if (badge) {
+                        badge.style.background = 'rgba(16, 185, 129, 0.08)';
+                        badge.style.border = '1px solid rgba(16, 185, 129, 0.2)';
+                        badge.style.color = 'var(--emerald)';
+                    }
+                    updateCSIGrid(data.csi_state);
                 }
             } catch (err) {
                 console.error("CSI Auto-Scan Error:", err);
-                alert("Auto-Scan request sent to gateway.");
             } finally {
                 if (btn) {
                     btn.disabled = false;
