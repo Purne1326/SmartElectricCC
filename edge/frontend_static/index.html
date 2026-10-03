@@ -2731,8 +2731,15 @@
             
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Ranging Nodes... 2s`;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Scanning Subcarriers...`;
             }
+
+            // Visual feedback scanning pulse on heatmap canvas
+            let scanStep = 1;
+            const scanAnim = setInterval(() => {
+                drawHeatmap(scanStep, null);
+                scanStep = (scanStep % 4) + 1;
+            }, 300);
             
             try {
                 const apiBase = getApiBase();
@@ -2742,6 +2749,9 @@
                     body: JSON.stringify({ table_length: 3.2, num_zones: 4 })
                 });
                 
+                await new Promise(r => setTimeout(r, 1500)); // allow scanning visual effect
+                clearInterval(scanAnim);
+
                 if (res.ok) {
                     const data = await res.json();
                     if (statusText) statusText.innerText = 'SYSTEM CALIBRATED & LISTENING';
@@ -2751,9 +2761,13 @@
                         badge.style.color = 'var(--emerald)';
                     }
                     updateCSIGrid(data.csi_state);
+                } else {
+                    drawHeatmap(null, null);
                 }
             } catch (err) {
                 console.error("CSI Auto-Scan Error:", err);
+                clearInterval(scanAnim);
+                drawHeatmap(null, null);
             } finally {
                 if (btn) {
                     btn.disabled = false;
