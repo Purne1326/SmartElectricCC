@@ -82,7 +82,6 @@ void initWiFiCSI() {
     csi_config.lltf_en = true;
     csi_config.htltf_en = true;
     csi_config.stbc_htltf2_en = true;
-    csi_config.ltz_en = true;
     csi_config.manu_scale = false;
     csi_config.shift = false;
     
