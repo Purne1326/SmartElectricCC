@@ -80,11 +80,9 @@ void initWiFiCSI() {
     wifi_csi_config_t csi_config;
     memset(&csi_config, 0, sizeof(wifi_csi_config_t));
     csi_config.lltf_en = true;
-    csi_config.ht_en = true;
+    csi_config.htltf_en = true;
     csi_config.stbc_htltf2_en = true;
-    csi_config.ltf2_en = true;
-    csi_config.rx_filter_info_en = true;
-    csi_config.channel_filter_en = false;
+    csi_config.ltz_en = true;
     csi_config.manu_scale = false;
     csi_config.shift = false;
     
