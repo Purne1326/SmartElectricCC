@@ -77,16 +77,16 @@ void _esp_wifi_csi_cb(void *ctx, wifi_csi_info_t *info) {
 }
 
 void initWiFiCSI() {
-    wifi_csi_config_t csi_config = {
-        .lltf_en = true,
-        .htft_en = true,
-        .stbc_htltf2_en = true,
-        .ltf2_en = true,
-        .rx_filter_info_en = true,
-        .channel_filter_en = false,
-        .manu_scale = false,
-        .shift = false
-    };
+    wifi_csi_config_t csi_config;
+    memset(&csi_config, 0, sizeof(wifi_csi_config_t));
+    csi_config.lltf_en = true;
+    csi_config.htft_en = true;
+    csi_config.stbc_htltf2_en = true;
+    csi_config.ltf2_en = true;
+    csi_config.rx_filter_info_en = true;
+    csi_config.channel_filter_en = false;
+    csi_config.manu_scale = false;
+    csi_config.shift = false;
     
     esp_wifi_set_csi_config(&csi_config);
     esp_wifi_set_csi_rx_cb(_esp_wifi_csi_cb, NULL);
