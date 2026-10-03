@@ -80,7 +80,7 @@ void initWiFiCSI() {
     wifi_csi_config_t csi_config;
     memset(&csi_config, 0, sizeof(wifi_csi_config_t));
     csi_config.lltf_en = true;
-    csi_config.htft_en = true;
+    csi_config.ht_en = true;
     csi_config.stbc_htltf2_en = true;
     csi_config.ltf2_en = true;
     csi_config.rx_filter_info_en = true;
@@ -274,7 +274,6 @@ void loop() {
     }
 
     // Telemetry Publishing Loop (Non-blocking timer)
-    unsigned long current_time = millis();
     if (current_time - last_telemetry_time >= TELEMETRY_INTERVAL_MS) {
         last_telemetry_time = current_time;
 
