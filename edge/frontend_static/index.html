@@ -1761,7 +1761,27 @@
                             <span id="csi-live-pos-label" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-secondary); font-weight: 700;">
                                 Human Position: Awaiting ESP32 CSI Scan...
                             </span>
-                                 <!-- 4 Zonal Relays Visual Representation -->
+                        </div>
+
+                        <!-- Interactive Presence Sensing Test Control Bar -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px 18px; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 12px; font-weight: 700; color: var(--text-white); font-family: 'JetBrains Mono', monospace;">
+                                    <i class="fa-solid fa-person-walking" style="color: var(--accent-color);"></i> Position Control:
+                                </span>
+                                <input type="range" id="csi-pos-slider" min="0" max="3.2" step="0.1" value="0" oninput="onCSIPositionSlider(this.value)" style="width: 180px; accent-color: var(--accent-color); cursor: pointer;">
+                                <span id="csi-slider-val-label" style="font-size: 12px; color: var(--accent-color); font-weight: 700; font-family: 'JetBrains Mono', monospace; min-width: 45px;">0.0m</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <button onclick="sendCSIPresenceEvent(0.4, 1)" class="btn-sm" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--accent-color); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Bulb 1 (0.4m)</button>
+                                <button onclick="sendCSIPresenceEvent(1.2, 2)" class="btn-sm" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--accent-color); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Bulb 2 (1.2m)</button>
+                                <button onclick="sendCSIPresenceEvent(2.0, 3)" class="btn-sm" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--accent-color); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Bulb 3 (2.0m)</button>
+                                <button onclick="sendCSIPresenceEvent(2.8, 4)" class="btn-sm" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--accent-color); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Bulb 4 (2.8m)</button>
+                                <button onclick="sendCSIPresenceEvent(null, null)" class="btn-sm" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">🟢 Vacant (Clear)</button>
+                            </div>
+                        </div>
+
+                        <!-- 4 Zonal Relays Visual Representation -->
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; position: relative;" id="csi-zones-container">
                             <!-- Zone 1 -->
                             <div id="csi-zone-card-1" class="glass-card csi-zone-card" style="border: 1px solid var(--card-border); text-align: center; padding: 24px 14px; transition: all 0.3s ease;">
@@ -2743,22 +2763,38 @@
             }
         }
 
-        async function simulateWalk(posX) {
+        async function sendCSIPresenceEvent(posX, zoneId) {
             try {
                 const apiBase = getApiBase();
-                const res = await fetch(`${apiBase}/api/csi/simulate-presence`, {
+                const res = await fetch(`${apiBase}/api/csi/presence-event`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ position_x: posX })
+                    body: JSON.stringify({ position_x: posX, active_zone: zoneId })
                 });
                 if (res.ok) {
                     const data = await res.json();
                     updateCSIGrid(data.csi_state);
-                    fetchData(); // refresh main relay cards
+                    fetchData();
                 }
             } catch (err) {
-                console.error("Simulate Walk Error:", err);
+                console.error("Presence Event Error:", err);
             }
+        }
+
+        let csiSliderDebounce = null;
+        function onCSIPositionSlider(val) {
+            const label = document.getElementById('csi-slider-val-label');
+            if (label) label.innerText = `${Number(val).toFixed(1)}m`;
+            
+            clearTimeout(csiSliderDebounce);
+            csiSliderDebounce = setTimeout(() => {
+                const pos = parseFloat(val);
+                let zId = 1;
+                if (pos > 2.4) zId = 4;
+                else if (pos > 1.6) zId = 3;
+                else if (pos > 0.8) zId = 2;
+                sendCSIPresenceEvent(pos, zId);
+            }, 100);
         }
 
         async function fetchCSIStatus() {
