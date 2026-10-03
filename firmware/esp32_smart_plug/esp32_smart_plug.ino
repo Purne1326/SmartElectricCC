@@ -2,6 +2,7 @@
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include "esp_wifi.h"
 
 #include "config.h"
 #include "secrets.h"
@@ -21,7 +22,77 @@ PubSubClient mqttClient(espClient);
 
 // Timing variables
 unsigned long last_telemetry_time = 0;
+unsigned long last_csi_pub_time = 0;
 unsigned long last_mqtt_reconnect_time = 0;
+
+// WiFi CSI Spatial Presence Sensing Variables
+static float csi_amplitude_variance = 0.0;
+static int detected_zone = 0; // 0 = vacant, 1..4 = zones
+static float estimated_pos_x = -1.0; // -1 = vacant
+
+// ESP32 Wi-Fi CSI Subcarrier Rx Callback
+void _esp_wifi_csi_cb(void *ctx, wifi_csi_info_t *info) {
+    if (!info || !info->buf) return;
+    
+    int8_t *csi_buf = (int8_t *)info->buf;
+    int len = info->len;
+    
+    // Calculate subcarrier magnitude variance to detect human Doppler/phase shift
+    double sum_mag = 0.0;
+    double sum_sq_mag = 0.0;
+    int count = len / 2;
+    
+    if (count <= 0) return;
+    
+    for (int i = 0; i < len; i += 2) {
+        int8_t real = csi_buf[i];
+        int8_t imag = csi_buf[i + 1];
+        double mag = sqrt(real * real + imag * imag);
+        sum_mag += mag;
+        sum_sq_mag += mag * mag;
+    }
+    
+    double mean_mag = sum_mag / count;
+    double var = (sum_sq_mag / count) - (mean_mag * mean_mag);
+    csi_amplitude_variance = 0.85f * csi_amplitude_variance + 0.15f * (float)var;
+    
+    // Zonal presence thresholding across 3.2m table span (Node 1 @ 0m, Node 2 @ 3.2m)
+    // High variance (> 25.0) indicates human movement disturbing the 2.4GHz RF subcarriers
+    if (csi_amplitude_variance > 25.0f) {
+        // Map RSSI ratio to distance (0.0m to 3.2m)
+        int rssi = info->rx_ctrl.rssi;
+        float dist = map(rssi, -85, -30, 32, 0) / 10.0f;
+        if (dist < 0.0f) dist = 0.4f;
+        if (dist > 3.2f) dist = 2.8f;
+        
+        estimated_pos_x = dist;
+        if (dist <= 0.8f) detected_zone = 1;
+        else if (dist <= 1.6f) detected_zone = 2;
+        else if (dist <= 2.4f) detected_zone = 3;
+        else detected_zone = 4;
+    } else {
+        detected_zone = 0;
+        estimated_pos_x = -1.0f; // Vacant
+    }
+}
+
+void initWiFiCSI() {
+    wifi_csi_config_t csi_config = {
+        .lltf_en = true,
+        .htft_en = true,
+        .stbc_htltf2_en = true,
+        .ltf2_en = true,
+        .rx_filter_info_en = true,
+        .channel_filter_en = false,
+        .manu_scale = false,
+        .shift = false
+    };
+    
+    esp_wifi_set_csi_config(&csi_config);
+    esp_wifi_set_csi_rx_cb(_esp_wifi_csi_cb, NULL);
+    esp_wifi_set_csi(true);
+    Serial.println("✅ ESP32 Wi-Fi CSI Subcarrier Spatial Sensing Engine initialized!");
+}
 
 void setup_wifi() {
     delay(10);
@@ -165,6 +236,9 @@ void setup() {
     // Configure MQTT Broker settings
     mqttClient.setServer(target_mqtt_server, MQTT_PORT);
     mqttClient.setCallback(mqtt_callback);
+
+    // Initialize ESP32 Wi-Fi CSI spatial sensing engine
+    initWiFiCSI();
 }
 
 void loop() {
@@ -178,6 +252,26 @@ void loop() {
     }
     
     mqttClient.loop();
+
+    // Fast CSI Presence Telemetry Publisher (Every 200ms)
+    unsigned long current_time = millis();
+    if (current_time - last_csi_pub_time >= 200) {
+        last_csi_pub_time = current_time;
+
+        StaticJsonDocument<256> csiDoc;
+        csiDoc["variance"] = csi_amplitude_variance;
+        if (estimated_pos_x >= 0.0f) {
+            csiDoc["position_x"] = estimated_pos_x;
+            csiDoc["active_zone"] = detected_zone;
+        } else {
+            csiDoc["position_x"] = nullptr;
+            csiDoc["active_zone"] = nullptr;
+        }
+
+        char csiBuffer[256];
+        serializeJson(csiDoc, csiBuffer);
+        mqttClient.publish("smartelectric/csi/data", csiBuffer);
+    }
 
     // Telemetry Publishing Loop (Non-blocking timer)
     unsigned long current_time = millis();
