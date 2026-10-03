@@ -25,11 +25,11 @@ extern const char* mqtt_server; // Defined in secrets.h / config.cpp if overridd
 #define RELAY_INACTIVE_STATE LOW
 #endif
 
-// Relay Pin Mappings
+// Relay Pin Mappings (Matches Backend Database GPIO Seed: Light=18, TV=19, Fridge=21, Fan=22)
 #define RELAY_LIGHT_PIN 18
 #define RELAY_TV_PIN    19
-#define RELAY_FRIDGE_PIN 26
-#define RELAY_FAN_PIN    27
+#define RELAY_FRIDGE_PIN 21
+#define RELAY_FAN_PIN    22
 
 // SCT-013 Current Sensor Analog Input Pins (ESP32 ADC pins)
 #define SENSOR_LIGHT_PIN 32
@@ -62,7 +62,7 @@ extern const char* mqtt_server; // Defined in secrets.h / config.cpp if overridd
 
 // Loop & Reporting Intervals
 #define TELEMETRY_INTERVAL_MS 5000  // Send telemetry every 5 seconds
-#define SAFETY_LOCKOUT_MS     3000  // Prevent relay chattering (min 3 seconds between state changes)
+#define SAFETY_LOCKOUT_MS     500   // Fast response (500ms lockout)
 
 // PIR and LDR Sensor Pin Mappings
 #define SENSOR_PIR_PIN 4
